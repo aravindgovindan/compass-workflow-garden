@@ -1,3 +1,4 @@
+import { issueRows } from "@/lib/exports/issues-list.server";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database, Json } from "@/integrations/supabase/types";
@@ -7,7 +8,6 @@ import { assertCanWriteRegister } from "@/lib/risks/score";
 import { checkCustomValues } from "@/lib/custom-fields/defs.server";
 import { clean, fail, projectAccess } from "@/lib/project-access.server";
 import type { CustomValues } from "@/lib/custom-fields/types";
-import { ownerOr } from "./risks.functions";
 
 // Every create/update/delete is written to activity_log (old and new values) by the log_activity() trigger.
 export type IssueRow = Database["public"]["Tables"]["issues"]["Row"];
@@ -21,15 +21,10 @@ export const listIssues = createServerFn({ method: "GET" })
   .handler(async ({ data: f, context }): Promise<IssueList> => {
     const { supabase, userId } = context;
     const { projectId } = await projectAccess(supabase, userId);
-    let q = supabase.from("issues").select("*").eq("project_id", projectId);
-    if (f.status.length) q = q.in("status", f.status);
-    if (f.severity.length) q = q.in("severity", f.severity);
-    if (f.category.length) q = q.in("category", f.category);
-    if (f.owner.length) q = q.or(ownerOr(f.owner));
-    q = q.order(f.sort, { ascending: f.dir === "asc", nullsFirst: false }).order("created_at").limit(1000);
+    const q = issueRows(supabase,projectId,f,1000);
     const [rows, cats] = await Promise.all([q, supabase.from("issues").select("category").eq("project_id", projectId).not("category", "is", null).limit(5000)]);
-    if (rows.error) fail("load the issues", rows.error);
-    return { rows: rows.data ?? [], categories: [...new Set((cats.data ?? []).map((r) => r.category!))].sort() };
+    
+    return { rows: rows.rows, categories: [...new Set((cats.data ?? []).map((r) => r.category!))].sort() };
   });
 
 export const getIssue = createServerFn({ method: "GET" })

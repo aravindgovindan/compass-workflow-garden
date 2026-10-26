@@ -1,8 +1,9 @@
+import { riskRows } from "@/lib/exports/risks-list.server";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database, Json } from "@/integrations/supabase/types";
 import { byId } from "@/lib/schemas/tasks";
-import { NO_OWNER, riskConvert, riskCreate, riskFilters, riskUpdate } from "@/lib/schemas/registers";
+import { riskConvert, riskCreate, riskFilters, riskUpdate } from "@/lib/schemas/registers";
 import { assertCanWriteRegister, canConvertRisk, heatmapCounts } from "@/lib/risks/score";
 import { checkCustomValues } from "@/lib/custom-fields/defs.server";
 import { clean, fail, projectAccess } from "@/lib/project-access.server";
@@ -13,12 +14,6 @@ export type RiskRow = Database["public"]["Tables"]["risks"]["Row"];
 export type RiskList = { rows: RiskRow[]; categories: string[]; heat: number[][] };
 export type RiskDetail = RiskRow & { issues: { id: string; title: string; status: string }[] };
 
-/** Owner filter as a PostgREST expression; ids are validated UUIDs. */
-export function ownerOr(owner: string[]): string {
-  const ids = owner.filter((o) => o !== NO_OWNER);
-  return [ids.length ? `owner_id.in.(${ids.join(",")})` : null, owner.includes(NO_OWNER) ? "owner_id.is.null" : null].filter(Boolean).join(",");
-}
-
 /** All project members, including stakeholders, may read risks. */
 export const listRisks = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -26,19 +21,12 @@ export const listRisks = createServerFn({ method: "GET" })
   .handler(async ({ data: f, context }): Promise<RiskList> => {
     const { supabase, userId } = context;
     const { projectId } = await projectAccess(supabase, userId);
-    let q = supabase.from("risks").select("*").eq("project_id", projectId);
-    if (f.status.length) q = q.in("status", f.status);
-    if (f.rating.length) q = q.in("rating", f.rating);
-    if (f.category.length) q = q.in("category", f.category);
-    if (f.owner.length) q = q.or(ownerOr(f.owner));
-    if (f.p) q = q.eq("probability", f.p);
-    if (f.i) q = q.eq("impact", f.i);
-    q = q.order(f.sort, { ascending: f.dir === "asc", nullsFirst: false }).order("created_at").limit(1000);
+    const q = riskRows(supabase,projectId,f,1000);
     const [rows, all] = await Promise.all([q, supabase.from("risks").select("probability, impact, status, category").eq("project_id", projectId).limit(5000)]);
-    if (rows.error) fail("load the risks", rows.error);
+    
     const everything = all.data ?? [];
     return {
-      rows: rows.data ?? [],
+      rows: rows.rows,
       categories: [...new Set(everything.map((r) => r.category).filter((c): c is string => !!c))].sort(),
       heat: heatmapCounts(everything),
     };
