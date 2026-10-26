@@ -29,3 +29,9 @@
 - Milestone percent complete and status are computed (never stored) by `milestoneProgress()` / `milestoneStatus()` in `src/lib/milestones/status.ts`; only owners may set `status_override` (checked server-side and by the `milestones_integrity()` trigger).
 - Risk score/rating bands live in `riskScore()` / `ratingFor()` (`src/lib/risks/score.ts`), mirrored by the generated `score`/`rating` columns via `risk_rating_for()`; risk→issue conversion runs atomically in the `convert_risk_to_issue()` DB function.
 - /risks and /issues keep filters, sort, heatmap cell and open item in URL search params (`riskSearch` / `issueSearch` in `src/lib/schemas/registers.ts`); custom values for any entity go through `checkCustomValues()` (`src/lib/custom-fields/defs.server.ts`).
+
+- Membership authorization and people selectors require `active = true`; atomic owner-checked membership/invitation RPCs lock the project and direct authenticated membership writes are revoked, so deactivation and last-owner protection cannot be bypassed.
+- Invitation acceptance uses `auth.users` verified email via `accept_pending_invitation()` before session membership is read; profile email never authorizes access, and an active project membership is never silently replaced.
+- Collaboration UI shares `RecordTabs`, `CommentsThread` and `ActivityFeed`; server functions in `src/functions/` validate inputs and record access, while comment triggers preserve identity and atomically synchronize mentions.
+- Mentions use escaped `@[display name](UUID)` tokens and are derived by database triggers, so the comment body and mention rows cannot diverge.
+- Activity APIs are read-only and stakeholder record history is restricted to accessible risks/issues; client audit write privileges and nonread policies are revoked to keep history append-only.

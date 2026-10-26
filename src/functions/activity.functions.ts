@@ -20,5 +20,24 @@ export const listActivity = createServerFn({method:'GET'}).middleware([requireSu
   if(r.error) { console.error('Activity read failed',r.error); throw new Error('Could not load history.'); }
   const ids = [...new Set((r.data ?? []).flatMap(x => x.actor_id ? [x.actor_id] : []))];
   const p = ids.length ? await context.supabase.from('profiles').select('id,full_name').in('id',ids) : {data:[]};
-  return {items:(r.data ?? []).map(x => ({...x,actor_name:x.actor_id ? p.data?.find(y => y.id === x.actor_id)?.full_name ?? 'Former member' : 'System'})),total:r.count ?? 0};
+  const titles = new Map<string,string>();
+  const rows = r.data ?? [];
+  await Promise.all(['tasks','risks','issues','milestones','phases','projects','comments','pending_invitations','project_members'].map(async type => {
+    const entityIds = [...new Set(rows.filter(x => x.entity_type === type).map(x => x.entity_id))];
+    if(!entityIds.length)return;
+    if(type === 'tasks' || type === 'risks' || type === 'issues') {
+      const result=await context.supabase.from(type).select('id,title').eq('project_id',projectId).in('id',entityIds);
+      for(const x of result.data ?? [])titles.set(x.id,x.title);
+    } else if(type === 'milestones' || type === 'phases') {
+      const result=await context.supabase.from(type).select('id,name').eq('project_id',projectId).in('id',entityIds);
+      for(const x of result.data ?? [])titles.set(x.id,x.name);
+    } else if(type === 'projects') {
+      const result=await context.supabase.from('projects').select('id,name').eq('id',projectId);
+      for(const x of result.data ?? [])titles.set(x.id,x.name);
+    } else if(type === 'pending_invitations') {
+      const result=await context.supabase.from('pending_invitations').select('id,email').eq('project_id',projectId).in('id',entityIds);
+      for(const x of result.data ?? [])titles.set(x.id,x.email);
+    }
+  }));
+  return {items:(r.data ?? []).map(x => ({...x,record_title:titles.get(x.entity_id) ?? null,actor_name:x.actor_id ? p.data?.find(y => y.id === x.actor_id)?.full_name ?? 'Former member' : 'System'})),total:r.count ?? 0};
 });
