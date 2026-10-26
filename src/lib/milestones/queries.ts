@@ -5,12 +5,13 @@ import {
   createMilestone, deleteMilestone, linkTasksToMilestone, listMilestones, listMilestoneTasks, unlinkTaskFromMilestone, updateMilestone,
 } from "@/functions/milestones.functions";
 import type { milestoneCreate, milestoneUpdate } from "@/lib/schemas/milestones";
+import { friendlyError } from "@/lib/errors";
 
 export const milestonesQuery = queryOptions({ queryKey: ["milestones"], queryFn: () => listMilestones() });
 export const milestoneTasksQuery = (id: string) =>
   queryOptions({ queryKey: ["milestones", "tasks", id], queryFn: () => listMilestoneTasks({ data: { id } }) });
 
-const errMsg = (e: unknown) => (e instanceof Error ? e.message : "Something went wrong");
+const errMsg = friendlyError;
 
 function useMsMutation<I>(fn: (i: I) => Promise<unknown>, success?: string) {
   const qc = useQueryClient();

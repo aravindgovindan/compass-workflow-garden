@@ -5,6 +5,7 @@ import { convertRiskToIssue, createRisk, deleteRisk, getRisk, listRisks, updateR
 import { createIssue, deleteIssue, getIssue, listIssues, updateIssue } from "@/functions/issues.functions";
 import type { issueUpdate, IssueFilters, riskUpdate, RiskFilters } from "@/lib/schemas/registers";
 import type { IssueSeverity } from "@/lib/risks/score";
+import { friendlyError } from "@/lib/errors";
 
 export const risksQuery = (f: RiskFilters) =>
   queryOptions({ queryKey: ["risks", "list", f], queryFn: () => listRisks({ data: f }), placeholderData: keepPreviousData });
@@ -13,7 +14,7 @@ export const issuesQuery = (f: IssueFilters) =>
   queryOptions({ queryKey: ["issues", "list", f], queryFn: () => listIssues({ data: f }), placeholderData: keepPreviousData });
 export const issueQuery = (id: string) => queryOptions({ queryKey: ["issues", "detail", id], queryFn: () => getIssue({ data: { id } }) });
 
-const errMsg = (e: unknown) => (e instanceof Error ? e.message : "Something went wrong");
+const errMsg = friendlyError;
 
 function useRegMutation<I, O>(key: string[], fn: (i: I) => Promise<O>, success?: string) {
   const qc = useQueryClient();

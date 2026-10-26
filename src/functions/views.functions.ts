@@ -73,8 +73,9 @@ export const getViewPrefs = createServerFn({ method: "POST" })
   .handler(async ({ context }): Promise<ViewPrefs> => {
     const { supabase, userId } = context;
     const projectId = await requireTaskReader(supabase, userId);
-    const { data } = await supabase.from("user_view_prefs").select("view_mode, list_columns")
+    const { data, error } = await supabase.from("user_view_prefs").select("view_mode, list_columns")
       .eq("project_id", projectId).eq("user_id", userId).maybeSingle();
+    if (error) fail("load your view settings", error);
     return {
       view_mode: data?.view_mode === "board" ? "board" : "list",
       list_columns: Array.isArray(data?.list_columns) ? (data.list_columns as unknown[]).map(String) : [],

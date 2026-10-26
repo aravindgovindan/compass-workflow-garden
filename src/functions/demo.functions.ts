@@ -30,11 +30,12 @@ export const loadDemo = createServerFn({ method: "POST" }).middleware([requireSu
   const error = statuses.error || priorities.error || terms.error || profile.error || members.error;
   if (error) fail("load demo configuration", error);
   const today = new Date().toISOString().slice(0, 10);
+  const memberIds = (members.data ?? []).map((m) => m.user_id);
   // Validate configured defaults against all active members, including user-field defaults.
   const fields = {
-    task: demoCustomValues(taskDefs, today, userId),
-    risk: demoCustomValues(riskDefs, today, userId),
-    issue: demoCustomValues(issueDefs, today, userId),
+    task: demoCustomValues(taskDefs, today, userId, memberIds),
+    risk: demoCustomValues(riskDefs, today, userId, memberIds),
+    issue: demoCustomValues(issueDefs, today, userId, memberIds),
   };
   const payload = buildDemo({ statuses: statuses.data ?? [], priorities: priorities.data ?? [], terms: toTermMap(terms.data ?? []), fields, userId, name: profile.data?.full_name ?? "Project owner" });
   const result = await supabase.rpc("load_demo_data", { _project_id: projectId, _payload: JSON.parse(JSON.stringify(payload)) as Json });

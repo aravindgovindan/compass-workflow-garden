@@ -32,7 +32,7 @@ ARCHITECTURE RULES
 - Validate all input with Zod on the server.
 
 TECH STACK
-Next.js (App Router) + TypeScript, Tailwind CSS, shadcn/ui, PostgreSQL via Supabase, Drizzle ORM, Supabase Auth, Zod, dnd-kit for drag and drop, TanStack Table for the list view. Deployable to Vercel.
+TanStack Start v1 (React 19) + TypeScript, Vite, Tailwind CSS, shadcn/ui, Lovable Cloud (PostgreSQL and Auth), Zod, dnd-kit and TanStack Table. Server functions run on Edge Workers. Database changes are plain SQL, applied through the managed migration tool; there are no Drizzle ORM models.
 
 APP STRUCTURE (routes)
 /login, /setup (first-run wizard), /dashboard, /tasks (list and board toggle, task detail drawer), /milestones, /risks, /issues, /team, /activity, /settings (project, workflow, terminology, lists, custom fields).
@@ -47,6 +47,14 @@ YOUR FIRST RESPONSE
 Do not write code yet. Reply with: (a) your understanding in 5 lines, (b) the proposed database schema, (c) the folder structure, (d) a numbered build plan matching the steps I will send. Then wait for my approval.
 
 This project was built with [Lovable](https://lovable.dev).
+
+## Phase 1 hardening and demo data
+
+Owners can open Settings → Demo data to load a customer onboarding launch dataset: 40 tasks (32 top-level and 8 sub-tasks), 3 phases, 4 milestones, 8 risks, 5 issues, 20 checklist entries and 6 comments with mentions. Dates are relative to the UTC load date. Existing workflow statuses, priorities, terminology and custom fields are used.
+
+Reloading does not duplicate records. Remove demo data deletes only tracked demo records, retaining real work, settings, members and append-only history. Newly added comments on demo records must be removed first. A demo-only project becomes blank after removal.
+
+See [Phase 1 permission audit](docs/phase1-audit.md) for every endpoint, live RLS policy, fixes, changed files and the three-role checklist. Run `bun test` for unit and live policy-regression tests; live checks require the test environment’s database connection and skip when it is unavailable.
 
 ## Build with Lovable
 

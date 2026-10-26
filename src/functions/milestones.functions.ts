@@ -16,7 +16,7 @@ import {
   type MilestoneStatus,
   type Progress,
 } from "@/lib/milestones/status";
-import { clean, fail, projectAccess, requireWriter } from "@/lib/project-access.server";
+import { clean, fail, projectAccess, requireWriter, requireTaskReader } from "@/lib/project-access.server";
 
 // Create/update/delete is written to activity_log by the log_activity() trigger (tasks too, for linking).
 type Row = Database["public"]["Tables"]["milestones"]["Row"];
@@ -37,7 +37,7 @@ export const listMilestoneTasks = createServerFn({ method: "GET" })
   .inputValidator((i: unknown) => byId.parse(i))
   .handler(async ({ data, context }): Promise<LinkedTask[]> => {
     const { supabase, userId } = context;
-    const { projectId } = await projectAccess(supabase, userId);
+    const projectId = await requireTaskReader(supabase, userId);
     const [t, s] = await Promise.all([
       supabase
         .from("tasks")

@@ -222,7 +222,7 @@ function MilestoneCard({
           <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{m.description}</p>
         )}
         <ProgressBar progress={m.progress} className="mt-3" />
-        <Collapsible className="mt-3">
+        {canSeeTasks && <Collapsible className="mt-3">
           <CollapsibleTrigger className="flex items-center gap-1 text-xs font-medium text-primary hover:underline [&[data-state=open]>svg]:rotate-180">
             Linked {term("task").toLowerCase()}
             <ChevronDown className="size-3.5 transition-transform" />
@@ -230,7 +230,7 @@ function MilestoneCard({
           <CollapsibleContent className="pt-2">
             <LinkedTasks milestoneId={m.id} canEdit={canEdit} />
           </CollapsibleContent>
-        </Collapsible>
+        </Collapsible>}
       </article>
       {editing && (
         <MilestoneForm

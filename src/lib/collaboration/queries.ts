@@ -8,6 +8,7 @@ import { listActivity } from "@/functions/activity.functions";
 import type { DiscussionEntity } from "./rules";
 import type { z } from "zod";
 import type { activityInput } from "./schemas";
+import { friendlyError } from "@/lib/errors";
 export const currentPersonQuery = queryOptions({
   queryKey: ["collaboration", "me"],
   queryFn: () => getCurrentUser(),
@@ -29,7 +30,7 @@ export function useCollaborationMutation<I, O>(fn: (opts: { data: I }) => Promis
   const call = useServerFn(fn);
   return useMutation({
     mutationFn: (data: I) => call({ data }),
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not save."),
+    onError: (e) => toast.error(friendlyError(e)),
     onSuccess: async () => {
       await Promise.all(
         [
