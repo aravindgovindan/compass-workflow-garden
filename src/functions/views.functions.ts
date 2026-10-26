@@ -8,7 +8,7 @@ import { assertOwnView } from "@/lib/tasks/views";
 // Saved views are private: every query filters by the caller's user id, and RLS enforces the same.
 // Create/rename/delete are written to activity_log by the log_activity() trigger.
 
-export type SavedView = { id: string; name: string; view_type: "list" | "board"; filters: Record<string, unknown>; updated_at: string };
+export type SavedView = { id: string; name: string; view_type: "list" | "board"; filters: { [k: string]: Json | undefined }; updated_at: string };
 export type ViewPrefs = { view_mode: "list" | "board"; list_columns: string[] };
 
 export const listSavedViews = createServerFn({ method: "POST" })
@@ -19,7 +19,7 @@ export const listSavedViews = createServerFn({ method: "POST" })
     const { data, error } = await supabase.from("saved_views").select("id, name, view_type, filters, updated_at")
       .eq("project_id", projectId).eq("user_id", userId).order("name");
     if (error) fail("load saved views", error);
-    return (data ?? []).map((v) => ({ ...v, view_type: v.view_type === "board" ? "board" : "list", filters: (v.filters ?? {}) as Record<string, unknown> }));
+    return (data ?? []).map((v) => ({ ...v, view_type: v.view_type === "board" ? "board" : "list", filters: (v.filters ?? {}) as { [k: string]: Json | undefined } }));
   });
 
 export const saveView = createServerFn({ method: "POST" })

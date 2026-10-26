@@ -22,12 +22,12 @@ export function columnChoices(config: ProjectConfig, term: Term): { id: string; 
   ];
 }
 
-export function buildColumns(config: ProjectConfig, phases: Phase[], term: Term): ColumnDef<TaskListItem>[] {
+export function buildColumns(config: ProjectConfig, phases: Phase[], term: Term): ColumnDef<TaskListItem, unknown>[] {
   const pos = <T extends { id: string }>(list: T[]) => new Map(list.map((x, i) => [x.id, i]));
   const statusPos = pos(config.statuses), prioPos = pos(config.priorities), phasePos = pos(phases);
   const name = (id: string | null) => config.members.find((m) => m.user_id === id)?.full_name ?? "";
   const rank = (m: Map<string, number>) => (id: string | null) => (id ? m.get(id) ?? 999 : 1000);
-  const cols: ColumnDef<TaskListItem>[] = [
+  const cols: ColumnDef<TaskListItem, unknown>[] = [
     { id: "title", accessorKey: "title", header: term("task", "singular"), meta: { width: 320, label: "Title" } as ColMeta,
       cell: ({ row }) => (
         <span className={`truncate font-medium ${row.original.completed_at ? "text-muted-foreground line-through" : ""}`}>{row.original.title}</span>
@@ -69,7 +69,7 @@ export function buildColumns(config: ProjectConfig, phases: Phase[], term: Term)
   return cols;
 }
 
-function dateCol(id: "start_date", label: string): ColumnDef<TaskListItem> {
+function dateCol(id: "start_date", label: string): ColumnDef<TaskListItem, unknown> {
   return { id, accessorFn: (r) => r[id] ?? "9999", header: label, meta: { width: 100, label } as ColMeta,
     cell: ({ row }) => (row.original[id] ? <span>{formatDate(row.original[id])}</span> : <Muted />) };
 }
