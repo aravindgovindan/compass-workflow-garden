@@ -5,7 +5,7 @@ Audited 2026-10-26 against source and the live Lovable Cloud database.
 ## Result and fixed gaps
 
 - All 22 public application tables have RLS enabled. All eight app sections use their matching guard in `src/lib/auth/roles.ts`.
-- Every one of the 71 server endpoints uses authenticated middleware. Project endpoints then check active membership and the appropriate role server-side. Session lookup and first-run project creation are explicit account/bootstrap exceptions, not project-data bypasses.
+- Every one of the 74 server endpoints uses authenticated middleware. Project endpoints then check active membership and the appropriate role server-side. Session lookup and first-run project creation are explicit account/bootstrap exceptions, not project-data bypasses.
 - Fixed stakeholder direct reads of tasks, task-label links, checklists and phases. Aggregate dashboard and milestone RPCs now verify active membership and project scope as narrowly projected SECURITY DEFINER functions; private dashboard lists remain owner/member-only.
 - Fixed `listMilestoneTasks`: server task-reader role check added, and linked-task controls hidden for stakeholders.
 - Removed the `created_by` project-read exception so a former creator cannot retain read access after deactivation.
@@ -17,6 +17,8 @@ Audited 2026-10-26 against source and the live Lovable Cloud database.
 - Live checks confirmed Step 8 collaboration RPCs, active membership helpers and policies are present; the historical proposal comment in the earlier migration is not evidence that it was unapplied.
 
 ## Every server function
+
+The complete inventory below covers 74 endpoints; the database inventory covers 22 tables and all 78 live RLS policies.
 
 Read means records the endpoint can access; write is its permitted mutation scope. All project scopes are restricted to the caller’s active project. RLS rechecks ordinary queries; management RPCs also validate caller roles.
 
@@ -713,6 +715,8 @@ No missing section guards were found. Public and layout routes are not section r
 - A blank project means no work records, not erased audit history. The tested project was returned to its original empty-work state after verification.
 
 ## States and verification
+
+- Final automated run: **136 tests passed across 19 files**, including six live database policy/grant regressions. Latest preview validation: build OK.
 
 - Shared root/router error and 404 screens use accessible design-system controls. Team and Activity blocking loaders now have local pending/error/not-found boundaries. App layout has a local error boundary.
 - Existing Tasks/Risks/Issues/Milestones retry controls were already present and retained. Shared mutation hooks now translate network failures; a global mutation-cache fallback handles mutations without their own error handler. Quick Add already had shared rollback/error handling; no duplicate toast was added.
