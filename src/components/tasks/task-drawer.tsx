@@ -33,7 +33,7 @@ export function TaskDrawer({ taskId, config, phases, onOpen, onClose }: {
 }) {
   const term = useTerm();
   return (
-    <Sheet open={!!taskId} onOpenChange={(o) => { if (!o) onClose(); }}>
+    <Sheet modal={false} open={!!taskId} onOpenChange={(o) => { if (!o) onClose(); }}>
       <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
         {taskId ? <Body key={taskId} id={taskId} config={config} phases={phases} onOpen={onOpen} onClose={onClose} /> : (
           <SheetHeader><SheetTitle>{term("task", "singular")}</SheetTitle></SheetHeader>
