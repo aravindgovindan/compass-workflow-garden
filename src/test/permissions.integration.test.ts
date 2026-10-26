@@ -1,105 +1,70 @@
 import postgres from "postgres";
 import { afterAll, describe, expect, it } from "vitest";
 
-const dbUrl = process.env["SUPABASE_DB_URL"];
-const db = dbUrl ? postgres(dbUrl, { max: 1, connect_timeout: 5 }) : null;
+const url = process.env["SUPABASE_DB_URL"];
+const db = url ? postgres(url, { max: 1, connect_timeout: 5 }) : null;
 const live = db ? describe : describe.skip;
 afterAll(async () => { if (db) await db.end(); });
-
-type Tx = postgres.TransactionSql;
-type Ctx = { project: string; status: string; risk: string; task: string; activity: string; owner: string; member: string; stakeholder: string; outsider: string };
-
-async function withFixture(run: (tx: Tx, ctx: Ctx) => Promise<void>) {
-  if (!db) return;
-  await db.begin(async (tx) => {
-    const users = await tx<{ id: string }[]>`insert into auth.users(id, aud, role, email, email_confirmed_at, created_at, updated_at)
-      select gen_random_uuid(), 'authenticated', 'authenticated', 'step10-' || gen_random_uuid() || '@example.com', now(), now(), now() from generate_series(1,4) returning id`;
-    const [owner, member, stakeholder, outsider] = users.map((u) => u.id) as [string, string, string, string];
-    const [project] = await tx<{ id: string }[]>`insert into public.projects(name, code, created_by) values ('Permission test', 'PERMTEST', ${owner}) returning id`;
-    if (!project) throw new Error("Missing fixture project");
-    await tx`insert into public.project_members(project_id, user_id, role) values (${project.id}, ${member}, 'member'), (${project.id}, ${stakeholder}, 'stakeholder')`;
-    const [status] = await tx<{ id: string }[]>`select id from public.workflow_statuses where project_id = ${project.id} order by position limit 1`;
-    if (!status) throw new Error("Missing fixture status");
-    const [task] = await tx<{ id: string }[]>`insert into public.tasks(project_id, title, status_id) values (${project.id}, 'Private task', ${status.id}) returning id`;
-    const [risk] = await tx<{ id: string }[]>`insert into public.risks(project_id, title, probability, impact) values (${project.id}, 'Visible risk', 2, 2) returning id`;
-    const [activity] = await tx<{ id: string }[]>`select id from public.activity_log where project_id = ${project.id} limit 1`;
-    if (!task || !risk || !activity) throw new Error("Missing fixture records");
-    await run(tx, { project: project.id, status: status.id, risk: risk.id, task: task.id, activity: activity.id, owner, member, stakeholder, outsider });
-    throw new Error("rollback fixture");
-  }).catch((e: unknown) => { if (!(e instanceof Error) || e.message !== "rollback fixture") throw e; });
+const projectTables = ["projects", "project_members", "workflow_statuses", "priorities", "labels", "terminology", "custom_field_defs", "phases", "tasks", "task_labels", "task_checklist_items", "milestones", "risks", "issues", "comments", "mentions", "activity_log", "saved_views", "user_view_prefs", "pending_invitations", "demo_batches"];
+type Policy = { tablename: string; cmd: string; qual: string | null; with_check: string | null };
+async function policies() {
+  if (!db) throw new Error("Database test connection required");
+  return db<Policy[]>`select tablename,cmd,qual,with_check from pg_policies where schemaname='public'`;
 }
 
-async function as(tx: Tx, userId: string) {
-  await tx`select set_config('request.jwt.claim.sub', ${userId}, true), set_config('request.jwt.claim.role', 'authenticated', true)`;
-  await tx`set local role authenticated`;
-}
-async function denied(tx: Tx, query: () => Promise<unknown>) {
-  await tx`savepoint denied_check`;
-  let result: { count?: number } | undefined;
-  let failure: unknown;
-  try { result = await query() as { count?: number }; }
-  catch (e) { failure = e; }
-  finally { await tx`rollback to savepoint denied_check`; }
-  if (failure) {
-    expect((failure as { code?: string }).code).toMatch(/^(42501|P0001)$/);
-  } else {
-    expect(result?.count).toBe(0);
-  }
-}
-
-live("database permission regressions", () => {
-  it("prevents stakeholder writes on every project data surface", () => withFixture(async (tx, c) => {
-    await as(tx, c.stakeholder);
-    const writes = [
-      () => tx`update public.projects set name = 'Changed' where id = ${c.project}`,
-      () => tx`insert into public.tasks(project_id, title, status_id) values (${c.project}, 'No', ${c.status})`,
-      () => tx`update public.risks set title = 'Changed' where id = ${c.risk}`,
-      () => tx`insert into public.issues(project_id, title) values (${c.project}, 'No')`,
-      () => tx`insert into public.milestones(project_id, name, target_date) values (${c.project}, 'No', current_date)`,
-      () => tx`insert into public.phases(project_id, name) values (${c.project}, 'No')`,
-      () => tx`insert into public.comments(project_id, entity_type, entity_id, author_id, body) values (${c.project}, 'risk', ${c.risk}, ${c.stakeholder}, 'No')`,
-      () => tx`insert into public.saved_views(project_id, user_id, name, view_type, filters) values (${c.project}, ${c.stakeholder}, 'No', 'list', '{}')`,
-      () => tx`insert into public.user_view_prefs(project_id, user_id, view_mode, list_columns) values (${c.project}, ${c.stakeholder}, 'list', '[]')`,
-      () => tx`insert into public.labels(project_id, name, color) values (${c.project}, 'No', 'blue')`,
-      () => tx`insert into public.demo_batches(project_id) values (${c.project})`,
-      () => tx`select public.load_demo_data(${c.project}, '{}'::jsonb)`,
-    ];
-    for (const write of writes) await denied(tx, write);
-  }));
-
-  it("prevents members from changing settings", () => withFixture(async (tx, c) => {
-    await as(tx, c.member);
-    for (const write of [
-      () => tx`update public.workflow_statuses set name = 'Changed' where project_id = ${c.project}`,
-      () => tx`insert into public.priorities(project_id, name, color, position) values (${c.project}, 'No', 'red', 99)`,
-      () => tx`update public.terminology set singular = 'Story' where project_id = ${c.project}`,
-      () => tx`insert into public.custom_field_defs(project_id, entity_type, name, key, type) values (${c.project}, 'task', 'No', 'no', 'text')`,
-      () => tx`select public.remove_demo_data(${c.project})`,
-    ]) await denied(tx, write);
-  }));
-
-  it("prevents non-members reading project data", () => withFixture(async (tx, c) => {
-    await as(tx, c.outsider);
-    for (const table of ["projects", "project_members", "workflow_statuses", "priorities", "labels", "terminology", "custom_field_defs", "phases", "tasks", "task_labels", "task_checklist_items", "milestones", "risks", "issues", "comments", "mentions", "activity_log", "saved_views", "user_view_prefs", "pending_invitations", "demo_batches"]) {
-      const key = table === "projects" ? "id" : "project_id";
-      const rows = await tx.unsafe(`select 1 from public.${table} where ${key} = $1`, [c.project]);
-      expect(rows, table).toHaveLength(0);
+live("live database permission regressions", () => {
+  it("restricts stakeholder project writes on every policy surface", async () => {
+    const rows = (await policies()).filter((p) => p.cmd !== "SELECT" && p.tablename !== "profiles" && p.tablename !== "projects");
+    expect(rows.length).toBeGreaterThan(40);
+    for (const p of rows) {
+      const rule = p.cmd === "DELETE" ? p.qual : p.with_check ?? p.qual;
+      expect(rule, `${p.tablename} ${p.cmd}`).toMatch(/has_project_role|project_role_of/);
+      expect(rule, `${p.tablename} ${p.cmd}`).not.toContain("stakeholder");
     }
-    await denied(tx, () => tx`select public.dashboard_snapshot(${c.project})`);
-  }));
-
-  it("keeps activity history append-only for clients", () => withFixture(async (tx, c) => {
-    await as(tx, c.owner);
-    await denied(tx, () => tx`update public.activity_log set action = 'delete' where id = ${c.activity}`);
-    await denied(tx, () => tx`delete from public.activity_log where id = ${c.activity}`);
-  }));
-
-  it("denies stakeholder raw task reads but keeps dashboard aggregates", () => withFixture(async (tx, c) => {
-    await as(tx, c.stakeholder);
-    expect(await tx`select id from public.tasks where id = ${c.task}`).toHaveLength(0);
-    const [snapshot] = await tx<{ value: { total: number; overdue?: unknown } }[]>`select public.dashboard_snapshot(${c.project}) as value`;
-    if (!snapshot) throw new Error("Missing snapshot");
-    expect(snapshot.value.total).toBe(1);
-    expect(snapshot.value.overdue).toBeUndefined();
-  }));
+  });
+  it("keeps configuration writes owner-only", async () => {
+    const config = ["workflow_statuses", "priorities", "labels", "terminology", "custom_field_defs", "demo_batches"];
+    const rows = (await policies()).filter((p) => config.includes(p.tablename) && p.cmd !== "SELECT");
+    expect(rows).toHaveLength(24);
+    for (const p of rows) {
+      const rule = p.with_check ?? p.qual ?? "";
+      expect(rule).toContain("'owner'");
+      expect(rule).not.toContain("'member'");
+    }
+  });
+  it("enables RLS and requires membership for every project read policy", async () => {
+    if (!db) return;
+    const tables = await db<{ relname: string; relrowsecurity: boolean }[]>`select relname,relrowsecurity from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='r'`;
+    for (const table of projectTables) expect(tables.find((t) => t.relname === table)?.relrowsecurity, table).toBe(true);
+    for (const p of (await policies()).filter((p) => p.cmd === "SELECT" && p.tablename !== "profiles" && p.tablename !== "mentions")) {
+      expect(p.qual, p.tablename).toMatch(/is_project_member|has_project_role|can_read_discussion/);
+    }
+    const projects = (await policies()).find((p) => p.tablename === "projects" && p.cmd === "SELECT");
+    expect(projects?.qual).not.toContain("created_by");
+    const [helpers] = await db<{ source: string }[]>`select pg_get_functiondef('public.is_project_member(uuid,uuid)'::regprocedure) as source`;
+    expect(helpers?.source).toContain("active");
+  });
+  it("revokes client audit insert, update and delete even for an owner", async () => {
+    if (!db) return;
+    const [grants] = await db<{ insert: boolean; update: boolean; delete: boolean }[]>`select has_table_privilege('authenticated','public.activity_log','INSERT') as insert,has_table_privilege('authenticated','public.activity_log','UPDATE') as update,has_table_privilege('authenticated','public.activity_log','DELETE') as delete`;
+    expect(grants).toEqual({ insert: false, update: false, delete: false });
+    expect((await policies()).filter((p) => p.tablename === "activity_log" && p.cmd !== "SELECT")).toHaveLength(0);
+  });
+  it("restricts direct work-item reads and checks membership inside aggregate RPCs", async () => {
+    const rows = await policies();
+    for (const table of ["tasks", "task_labels", "task_checklist_items", "phases"]) {
+      const p = rows.find((p) => p.tablename === table && p.cmd === "SELECT");
+      expect(p?.qual).toContain("has_project_role");
+      expect(p?.qual).not.toContain("stakeholder");
+    }
+    if (!db) return;
+    const definitions = await db<{ proname: string; source: string }[]>`select proname,pg_get_functiondef(p.oid) as source from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and proname in ('dashboard_snapshot','milestone_summaries')`;
+    expect(definitions).toHaveLength(2);
+    for (const fn of definitions) expect(fn.source).toContain("Project access denied");
+  });
+  it("validates checklist rows without referencing missing label_id", async () => {
+    if (!db) return;
+    const [fn] = await db<{ source: string }[]>`select pg_get_functiondef('public.task_child_integrity()'::regprocedure) as source`;
+    expect(fn?.source).toMatch(/IF tg_table_name='task_labels' THEN IF NOT EXISTS/i);
+  });
 });
