@@ -7,20 +7,40 @@ import {
   reorderChecklist, setTaskLabels, updateChecklistItem, updateTask, type TaskDetail, type TaskListItem,
 } from "@/functions/tasks.functions";
 import { createPhase, deletePhase, listPhases, reorderPhases, updatePhase, type Phase } from "@/functions/phases.functions";
+import { applyMove } from "./board";
+import type { TaskFilters } from "./view-params";
 
 type ListData = { rows: TaskListItem[]; total: number };
 type UpdateInput = z.input<typeof taskUpdate>;
 
-export const tasksListQuery = queryOptions({
-  queryKey: ["tasks", "list"],
-  queryFn: () => listTasks({ data: { topLevelOnly: true, sort: "position", pageSize: 500 } }),
-});
+const LIST_KEY = ["tasks", "list"] as const;
+
+/** One cached list per filter combination; all of them are patched optimistically. */
+export const tasksListQuery = (f: TaskFilters) =>
+  queryOptions({
+    queryKey: [...LIST_KEY, f],
+    queryFn: () => listTasks({ data: {
+      topLevelOnly: true, sort: "position", search: f.q || undefined,
+      statusIds: f.status, priorityIds: f.priority, assigneeIds: f.assignee, phaseIds: f.phase, labelIds: f.label,
+      dueFrom: f.dueFrom, dueTo: f.dueTo, overdue: f.overdue, cf: f.cf,
+    } }),
+    placeholderData: (prev) => prev,
+  });
 export const taskDetailQuery = (id: string) =>
   queryOptions({ queryKey: ["tasks", "detail", id], queryFn: () => getTask({ data: { id } }) });
 export const phasesQuery = queryOptions({ queryKey: ["phases"], queryFn: () => listPhases() });
 
 const errMsg = (e: unknown) => (e instanceof Error ? e.message : "Something went wrong");
 const refreshTasks = (qc: QueryClient) => qc.invalidateQueries({ queryKey: ["tasks"] });
+
+type Snapshot = [readonly unknown[], ListData | undefined][];
+async function patchLists(qc: QueryClient, fn: (d: ListData) => ListData): Promise<Snapshot> {
+  await qc.cancelQueries({ queryKey: LIST_KEY });
+  const snap = qc.getQueriesData<ListData>({ queryKey: LIST_KEY });
+  qc.setQueriesData<ListData>({ queryKey: LIST_KEY }, (d) => (d ? fn(d) : d));
+  return snap;
+}
+const restore = (qc: QueryClient, snap?: Snapshot) => snap?.forEach(([k, d]) => qc.setQueryData(k, d));
 
 /** Visible "Saving…" state for one task. */
 export function useTaskSaving(id: string) {
@@ -35,18 +55,17 @@ export function useUpdateTask(id: string) {
     mutationFn: (patch: Omit<UpdateInput, "id">) => updateTask({ data: { id, ...patch } }),
     onMutate: async (patch) => {
       await qc.cancelQueries({ queryKey: ["tasks"] });
-      const list = qc.getQueryData<ListData>(tasksListQuery.queryKey);
       const detail = qc.getQueryData<TaskDetail>(taskDetailQuery(id).queryKey);
       const apply = <T extends { custom_fields: unknown }>(t: T): T => ({
         ...t, ...patch,
         custom_fields: patch["custom_fields"] ? { ...(t.custom_fields as object), ...patch["custom_fields"] } : t.custom_fields,
       });
-      if (list) qc.setQueryData<ListData>(tasksListQuery.queryKey, { ...list, rows: list.rows.map((r) => (r.id === id ? apply(r) : r)) });
+      const lists = await patchLists(qc, (l) => ({ ...l, rows: l.rows.map((r) => (r.id === id ? apply(r) : r)) }));
       if (detail) qc.setQueryData<TaskDetail>(taskDetailQuery(id).queryKey, apply(detail));
-      return { list, detail };
+      return { lists, detail };
     },
     onError: (e, _v, ctx) => {
-      if (ctx?.list) qc.setQueryData(tasksListQuery.queryKey, ctx.list);
+      restore(qc, ctx?.lists);
       if (ctx?.detail) qc.setQueryData(taskDetailQuery(id).queryKey, ctx.detail);
       toast.error(errMsg(e));
     },
@@ -60,23 +79,20 @@ export function useCreateTask() {
   return useMutation({
     mutationFn: (input: z.input<typeof taskCreate>) => createTask({ data: input }),
     onMutate: async (input) => {
-      await qc.cancelQueries({ queryKey: tasksListQuery.queryKey });
-      const list = qc.getQueryData<ListData>(tasksListQuery.queryKey);
-      if (list && !input.parent_task_id) {
-        const now = new Date().toISOString();
-        const temp: TaskListItem = {
-          id: `temp-${crypto.randomUUID()}`, project_id: "", title: input.title, description: null, parent_task_id: null,
-          phase_id: input.phase_id ?? null, status_id: input.status_id ?? "", priority_id: input.priority_id ?? null,
-          assignee_id: null, reporter_id: null, start_date: null, due_date: null, estimate_hours: null,
-          position: Number.MAX_SAFE_INTEGER, custom_fields: {}, completed_at: null, created_at: now, updated_at: now,
-          label_ids: [], subtask_count: 0, checklist_total: 0, checklist_done: 0,
-        };
-        qc.setQueryData<ListData>(tasksListQuery.queryKey, { rows: [...list.rows, temp], total: list.total + 1 });
-      }
-      return { list };
+      if (input.parent_task_id) return { lists: undefined };
+      const now = new Date().toISOString();
+      const temp: TaskListItem = {
+        id: `temp-${crypto.randomUUID()}`, project_id: "", title: input.title, description: null, parent_task_id: null,
+        phase_id: input.phase_id ?? null, status_id: input.status_id ?? "", priority_id: input.priority_id ?? null,
+        assignee_id: null, reporter_id: null, start_date: null, due_date: null, estimate_hours: null,
+        position: Number.MAX_SAFE_INTEGER, custom_fields: {}, completed_at: null, created_at: now, updated_at: now,
+        label_ids: [], subtask_count: 0, checklist_total: 0, checklist_done: 0,
+      };
+      const lists = await patchLists(qc, (l) => ({ rows: [...l.rows, temp], total: l.total + 1 }));
+      return { lists };
     },
     onError: (e, _v, ctx) => {
-      if (ctx?.list) qc.setQueryData(tasksListQuery.queryKey, ctx.list);
+      restore(qc, ctx?.lists);
       toast.error(errMsg(e));
     },
     onSettled: () => refreshTasks(qc),
@@ -93,11 +109,16 @@ export function useDeleteTask() {
   });
 }
 
+/** Board drag: optimistic status/position change on every cached list, rollback on error. */
 export function useMoveTask() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: { id: string; status_id: string; position: number }) => moveTask({ data: input }),
-    onError: (e) => toast.error(errMsg(e)),
+    onMutate: async (i) => ({ lists: await patchLists(qc, (l) => ({ ...l, rows: applyMove(l.rows, i.id, i.status_id, i.position) })) }),
+    onError: (e, _i, ctx) => {
+      restore(qc, ctx?.lists);
+      toast.error(errMsg(e));
+    },
     onSettled: () => refreshTasks(qc),
   });
 }
