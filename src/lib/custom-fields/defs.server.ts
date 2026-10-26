@@ -19,7 +19,7 @@ export async function checkCustomValues(
 ): Promise<CustomValues> {
   const [defs, members] = await Promise.all([
     loadDefs(supabase, projectId, entity),
-    supabase.from("project_members").select("user_id").eq("project_id", projectId),
+    supabase.from("project_members").select("user_id").eq("project_id", projectId).eq("active", true),
   ]);
   const merged: CustomValues = { ...stored };
   if (mode === "create") for (const d of defs) if (d.default_value !== undefined && d.default_value !== null) merged[d.key] = d.default_value;

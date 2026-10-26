@@ -1,3 +1,4 @@
+import { RecordTabs } from "@/components/collaboration/record-tabs";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -28,7 +29,7 @@ export function RiskDrawer({ id, config, canEdit, onClose, onConverted }: {
     <RecordSheet open={!!id} onClose={onClose} kind={term("risk", "singular")} title={q.data?.title}
       state={q.isPending ? "loading" : q.error || !q.data ? "error" : "ready"} saving={saving} readOnly={!canEdit}
       onRetry={() => q.refetch()} onDelete={() => id && del.mutate(id, { onSuccess: onClose })}>
-      {q.data && <Body key={q.data.id} r={q.data} config={config} canEdit={canEdit} onConverted={onConverted} />}
+      {q.data && <RecordTabs entityType="risk" entityId={q.data.id}><Body key={q.data.id} r={q.data} config={config} canEdit={canEdit} onConverted={onConverted} /></RecordTabs>}
     </RecordSheet>
   );
 }

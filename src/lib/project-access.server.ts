@@ -11,6 +11,7 @@ export async function projectAccess(supabase: Db, userId: string): Promise<{ pro
     .from("project_members")
     .select("project_id, role")
     .eq("user_id", userId)
+    .eq("active", true)
     .order("created_at")
     .limit(1)
     .maybeSingle();
