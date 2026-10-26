@@ -26,3 +26,4 @@
 - /tasks view state (filters, sort, grouping) lives in URL search params parsed by `parseTaskSearch()` (`src/lib/tasks/view-params.ts`), so views are shareable links; saved views store that same object.
 - Per-user view settings (List/Board, list columns) live in `user_view_prefs`; saved views in `saved_views`; both are owner-only via RLS and `user_id` filters.
 - The task list loads all matching top-level tasks in 1,000-row pages and virtualizes rendering; board columns render 50 cards at a time. Board drops compute positions with `dropPosition()` (`src/lib/tasks/board.ts`).
+- Milestone percent complete and status are computed (never stored) by `milestoneProgress()` / `milestoneStatus()` in `src/lib/milestones/status.ts`; only owners may set `status_override` (checked server-side and by the `milestones_integrity()` trigger).

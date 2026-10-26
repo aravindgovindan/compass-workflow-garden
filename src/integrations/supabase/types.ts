@@ -146,6 +146,56 @@ export type Database = {
           },
         ]
       }
+      milestones: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          owner_id: string | null
+          project_id: string
+          status_override:
+            | Database["public"]["Enums"]["milestone_status"]
+            | null
+          target_date: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          owner_id?: string | null
+          project_id: string
+          status_override?:
+            | Database["public"]["Enums"]["milestone_status"]
+            | null
+          target_date: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          owner_id?: string | null
+          project_id?: string
+          status_override?:
+            | Database["public"]["Enums"]["milestone_status"]
+            | null
+          target_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "milestones_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       phases: {
         Row: {
           created_at: string
@@ -486,6 +536,7 @@ export type Database = {
           due_date: string | null
           estimate_hours: number | null
           id: string
+          milestone_id: string | null
           parent_task_id: string | null
           phase_id: string | null
           position: number
@@ -506,6 +557,7 @@ export type Database = {
           due_date?: string | null
           estimate_hours?: number | null
           id?: string
+          milestone_id?: string | null
           parent_task_id?: string | null
           phase_id?: string | null
           position?: number
@@ -526,6 +578,7 @@ export type Database = {
           due_date?: string | null
           estimate_hours?: number | null
           id?: string
+          milestone_id?: string | null
           parent_task_id?: string | null
           phase_id?: string | null
           position?: number
@@ -538,6 +591,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tasks_milestone_id_fkey"
+            columns: ["milestone_id"]
+            isOneToOne: false
+            referencedRelation: "milestones"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tasks_parent_task_id_fkey"
             columns: ["parent_task_id"]
@@ -734,6 +794,7 @@ export type Database = {
         | "user"
         | "checkbox"
         | "url"
+      milestone_status: "upcoming" | "at_risk" | "achieved" | "missed"
       project_health: "green" | "amber" | "red"
       project_role: "owner" | "member" | "stakeholder"
       status_category: "todo" | "in_progress" | "done"
@@ -876,6 +937,7 @@ export const Constants = {
         "checkbox",
         "url",
       ],
+      milestone_status: ["upcoming", "at_risk", "achieved", "missed"],
       project_health: ["green", "amber", "red"],
       project_role: ["owner", "member", "stakeholder"],
       status_category: ["todo", "in_progress", "done"],

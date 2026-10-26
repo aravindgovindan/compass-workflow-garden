@@ -21,7 +21,7 @@ export const tasksListQuery = (f: TaskFilters) =>
     queryKey: [...LIST_KEY, f],
     queryFn: () => listTasks({ data: {
       topLevelOnly: true, sort: "position", search: f.q || undefined,
-      statusIds: f.status, priorityIds: f.priority, assigneeIds: f.assignee, phaseIds: f.phase, labelIds: f.label,
+      statusIds: f.status, priorityIds: f.priority, assigneeIds: f.assignee, phaseIds: f.phase, milestoneIds: f.milestone, labelIds: f.label,
       dueFrom: f.dueFrom, dueTo: f.dueTo, overdue: f.overdue, cf: f.cf,
     } }),
     placeholderData: (prev) => prev,
@@ -31,7 +31,8 @@ export const taskDetailQuery = (id: string) =>
 export const phasesQuery = queryOptions({ queryKey: ["phases"], queryFn: () => listPhases() });
 
 const errMsg = (e: unknown) => (e instanceof Error ? e.message : "Something went wrong");
-const refreshTasks = (qc: QueryClient) => qc.invalidateQueries({ queryKey: ["tasks"] });
+const refreshTasks = (qc: QueryClient) =>
+  Promise.all([qc.invalidateQueries({ queryKey: ["tasks"] }), qc.invalidateQueries({ queryKey: ["milestones"] })]);
 
 type Snapshot = [readonly unknown[], ListData | undefined][];
 async function patchLists(qc: QueryClient, fn: (d: ListData) => ListData): Promise<Snapshot> {
@@ -82,7 +83,7 @@ export function useCreateTask() {
       if (input.parent_task_id) return { lists: undefined };
       const now = new Date().toISOString();
       const temp: TaskListItem = {
-        id: `temp-${crypto.randomUUID()}`, project_id: "", title: input.title, description: null, parent_task_id: null,
+        id: `temp-${crypto.randomUUID()}`, project_id: "", title: input.title, description: null, parent_task_id: null, milestone_id: null,
         phase_id: input.phase_id ?? null, status_id: input.status_id ?? "", priority_id: input.priority_id ?? null,
         assignee_id: null, reporter_id: null, start_date: null, due_date: null, estimate_hours: null,
         position: Number.MAX_SAFE_INTEGER, custom_fields: {}, completed_at: null, created_at: now, updated_at: now,

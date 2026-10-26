@@ -22,6 +22,7 @@ import type { TaskDetail } from "@/functions/tasks.functions";
 import { validateCustomValues } from "@/lib/custom-fields/validate";
 import { taskDetailQuery, useDeleteTask, useTaskLabels, useTaskSaving, useUpdateTask } from "@/lib/tasks/queries";
 import { useTerm } from "@/lib/terminology/use-term";
+import { milestonesQuery } from "@/lib/milestones/queries";
 import { Dot, PickOne } from "./shared";
 import { QuickAdd } from "./quick-add";
 import { Checklist } from "./checklist";
@@ -94,6 +95,7 @@ function Field({ label, htmlFor, children }: { label: string; htmlFor?: string; 
 function Fields({ task: t, config, phases }: { task: TaskDetail; config: ProjectConfig; phases: Phase[] }) {
   const term = useTerm();
   const update = useUpdateTask(t.id);
+  const milestones = useQuery(milestonesQuery);
   const save = (patch: Parameters<typeof update.mutate>[0]) => update.mutate(patch);
   const people = config.members.map((m) => ({ value: m.user_id, label: m.full_name }));
   return (
@@ -121,6 +123,10 @@ function Fields({ task: t, config, phases }: { task: TaskDetail; config: Project
               options={phases.map((p) => ({ value: p.id, label: p.name }))} />
           </Field>
         )}
+        <Field label={term("milestone", "singular")} htmlFor="f-milestone">
+          <PickOne id="f-milestone" label={term("milestone", "singular")} value={t.milestone_id} allowNone onChange={(v) => save({ milestone_id: v })}
+            options={(milestones.data ?? []).map((m) => ({ value: m.id, label: m.name }))} />
+        </Field>
         <Field label="Estimate (hours)" htmlFor="f-estimate">
           <Input id="f-estimate" type="number" min={0} step="0.25" className="h-9" defaultValue={t.estimate_hours ?? ""}
             onBlur={(e) => {

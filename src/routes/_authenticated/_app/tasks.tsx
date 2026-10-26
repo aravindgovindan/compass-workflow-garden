@@ -23,7 +23,7 @@ import { parseTaskSearch, toFilters, viewState, type GroupBy, type TaskFilters }
 import { DEFAULT_LIST_COLUMNS } from "@/lib/tasks/views";
 import { useTerm } from "@/lib/terminology/use-term";
 
-const DEFAULTS = { q: "", status: [], assignee: [], priority: [], label: [], phase: [], overdue: false, cf: {}, sort: "", dir: "asc", group: "phase" };
+const DEFAULTS = { q: "", status: [], assignee: [], priority: [], label: [], phase: [], milestone: [], overdue: false, cf: {}, sort: "", dir: "asc", group: "phase" };
 
 export const Route = createFileRoute("/_authenticated/_app/tasks")({
   beforeLoad: guardSection("tasks"),
