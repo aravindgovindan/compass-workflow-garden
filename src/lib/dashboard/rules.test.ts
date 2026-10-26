@@ -1,7 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { completion, isOverdue, statusCompletion, privateDashboardData } from "./rules";
 describe("dashboard rules", () => {
-  it('stakeholders never receive overdue titles or recent activity',()=>expect(privateDashboardData({total:2,overdue:[{title:'Private task'}],activity:[{actor:'Person'}]},'stakeholder')).toEqual({total:2}));
+  it("stakeholders never receive overdue titles or recent activity", () =>
+    expect(
+      privateDashboardData(
+        { total: 2, overdue: [{ title: "Private task" }], activity: [{ actor: "Person" }] },
+        "stakeholder",
+      ),
+    ).toEqual({ total: 2 }));
   it("uses done category with custom status names", () =>
     expect(
       statusCompletion([

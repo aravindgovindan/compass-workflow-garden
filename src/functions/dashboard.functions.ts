@@ -1,7 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { projectAccess, fail } from "@/lib/project-access.server";
-import { privateDashboardData, statusCompletion, snapshotSchema, summarizeMilestone } from "@/lib/dashboard/rules";
+import {
+  privateDashboardData,
+  statusCompletion,
+  snapshotSchema,
+  summarizeMilestone,
+} from "@/lib/dashboard/rules";
 export const getDashboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -14,7 +19,7 @@ export const getDashboard = createServerFn({ method: "GET" })
       .filter((m) => m.target_date >= data.today && m.status !== "achieved")
       .slice(0, 5);
     return {
-      ...privateDashboardData(data,role),
+      ...privateDashboardData(data, role),
       milestones,
       progress: statusCompletion(data.statuses),
     };
