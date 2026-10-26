@@ -32,6 +32,6 @@
 
 - Membership authorization and people selectors require `active = true`; atomic owner-checked membership/invitation RPCs lock the project and direct authenticated membership writes are revoked, so deactivation and last-owner protection cannot be bypassed.
 - Invitation acceptance uses `auth.users` verified email via `accept_pending_invitation()` before session membership is read; profile email never authorizes access, and an active project membership is never silently replaced.
-- Collaboration UI shares `RecordTabs`, `CommentsThread` and `ActivityFeed`; server functions in `src/functions/` validate inputs and record access, while comment triggers preserve identity and atomically synchronize mentions.
+- Collaboration UI shares `RecordTabs`, `CommentsThread` and `ActivityFeed`; keep the Details panel mounted when switching tabs to preserve editing state, and validate record access in server functions while comment triggers preserve identity and synchronize mentions.
 - Mentions use escaped `@[display name](UUID)` tokens and are derived by database triggers, so the comment body and mention rows cannot diverge.
 - Activity APIs are read-only and stakeholder record history is restricted to accessible risks/issues; client audit write privileges and nonread policies are revoked to keep history append-only.

@@ -125,7 +125,7 @@ export function AppShell({ me, children }: { me: CurrentUser; children: ReactNod
         </SidebarFooter>
       </Sidebar>
 
-      <SidebarInset>
+      <SidebarInset className="min-w-0 overflow-x-clip">
         <header className="sticky top-0 z-10 flex h-14 items-center gap-3 border-b bg-background/85 px-4 backdrop-blur">
           <SidebarTrigger aria-label="Toggle navigation" />
           <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -162,7 +162,7 @@ export function AppShell({ me, children }: { me: CurrentUser; children: ReactNod
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
-        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+        <main className="mx-auto min-w-0 w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );
