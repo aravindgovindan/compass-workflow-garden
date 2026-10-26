@@ -38,17 +38,33 @@ export const taskMove = z.object({ id, status_id: id, position: z.number().finit
 export const taskDelete = z.object({ id, confirmSubtasks: z.boolean().default(false) });
 export const taskLabelsSet = z.object({ id, labelIds: z.array(id).max(50) });
 
+const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 export const taskList = z.object({
   search: z.string().trim().max(200).optional(),
-  statusIds: z.array(id).optional(),
-  priorityIds: z.array(id).optional(),
-  assigneeIds: z.array(id).optional(),
-  phaseIds: z.array(id).optional(),
+  statusIds: z.array(id).max(100).optional(),
+  priorityIds: z.array(id).max(100).optional(),
+  assigneeIds: z.array(z.union([id, z.literal("none")])).max(100).optional(),
+  phaseIds: z.array(id).max(200).optional(),
+  labelIds: z.array(id).max(100).optional(),
+  dueFrom: day.optional(),
+  dueTo: day.optional(),
+  overdue: z.boolean().default(false),
+  cf: z.record(z.string().regex(/^[a-z][a-z0-9_]{0,49}$/), z.string().max(200)).default({}),
   topLevelOnly: z.boolean().default(true),
   sort: z.enum(["position", "title", "due_date", "created_at", "updated_at"]).default("position"),
   dir: z.enum(["asc", "desc"]).default("asc"),
-  page: z.number().int().min(1).default(1),
-  pageSize: z.number().int().min(1).max(500).default(200),
+  pageSize: z.number().int().min(1).max(5000).default(5000),
+});
+
+export const savedViewInput = z.object({
+  name: z.string().trim().min(1, "Name is required").max(80, "80 characters max"),
+  view_type: z.enum(["list", "board"]),
+  filters: z.record(z.string(), z.unknown()),
+});
+export const savedViewRename = z.object({ id, name: savedViewInput.shape.name });
+export const viewPrefsInput = z.object({
+  view_mode: z.enum(["list", "board"]).optional(),
+  list_columns: z.array(z.string().max(60)).max(60).optional(),
 });
 
 export const checklistAdd = z.object({ taskId: id, text: z.string().trim().min(1, "Required").max(300) });
