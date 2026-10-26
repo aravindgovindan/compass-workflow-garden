@@ -15,6 +15,10 @@ export const Route = createFileRoute("/_authenticated/_app/settings")({
     meta: [
       { title: "Settings — Compass Workflow" },
       { name: "description", content: "Workflow, terminology, priorities, labels and custom fields." },
+      { property: "og:title", content: "Settings — Compass Workflow" },
+      { property: "og:description", content: "Workflow, terminology, priorities, labels and custom fields." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Page,

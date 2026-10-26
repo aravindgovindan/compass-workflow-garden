@@ -1,14 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Users } from "lucide-react";
-import { SectionPlaceholder } from "@/components/layout/section-placeholder";
+import { TeamDirectory } from "@/components/collaboration/team-directory";
+import { teamQuery } from "@/lib/collaboration/queries";
 import { guardSection } from "@/lib/auth/guard";
-
 export const Route = createFileRoute("/_authenticated/_app/team")({
   beforeLoad: guardSection("team"),
-  head: () => ({ meta: [{ title: "Team — Compass Workflow" }, { name: "description", content: "The people on this project." }] }),
+  loader: ({context}) => context.queryClient.ensureQueryData(teamQuery),
+  head: () => ({ meta: [{title:"Team — Compass Workflow"},{name:"description",content:"People, roles and invitations for your project."},{property:"og:title",content:"Team — Compass Workflow"},{property:"og:description",content:"People, roles and invitations for your project."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary"}] }),
   component: Page,
 });
-
-function Page() {
-  return <SectionPlaceholder term="team" description="The people on this project." icon={Users} />;
-}
+function Page() { const {me} = Route.useRouteContext(); return <TeamDirectory isOwner={me.membership?.role === "owner"}/>; }

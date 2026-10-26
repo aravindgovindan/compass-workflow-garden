@@ -16,12 +16,15 @@ export const getCurrentUser = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<CurrentUser> => {
     const { supabase, userId } = context;
+    const acceptance = await supabase.rpc("accept_pending_invitation");
+    if (acceptance.error) throw new Error("Could not check your invitation. Please try again.");
     const [{ data: profile }, { data: m }] = await Promise.all([
       supabase.from("profiles").select("full_name, email, avatar_url").eq("id", userId).maybeSingle(),
       supabase
         .from("project_members")
         .select("role, project:projects(id, name, code, health)")
         .eq("user_id", userId)
+    .eq("active", true)
         .order("created_at")
         .limit(1)
         .maybeSingle(),

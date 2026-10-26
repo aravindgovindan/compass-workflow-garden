@@ -1,3 +1,4 @@
+import { RecordTabs } from "@/components/collaboration/record-tabs";
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUpLeft, Tag, Trash2, X } from "lucide-react";
@@ -74,15 +75,17 @@ function Body({ id, config, phases, onOpen, onClose }: {
           <SavingNote saving={saving} />
         </div>
         {t.parent && (
-          <button type="button" onClick={() => onOpen(t.parent!.id)} className="flex items-center gap-1 text-left text-xs text-primary hover:underline">
+          <button type="button" onClick={() => t.parent && onOpen(t.parent.id)} className="flex items-center gap-1 text-left text-xs text-primary hover:underline">
             <ArrowUpLeft className="size-3.5" />{t.parent.title}
           </button>
         )}
         <SheetTitle className="sr-only">{t.title}</SheetTitle>
       </SheetHeader>
+      <RecordTabs entityType="task" entityId={t.id}>
       <Fields task={t} config={config} phases={phases} />
       {!t.parent_task_id && <Subtasks task={t} config={config} onOpen={onOpen} />}
       <Checklist task={t} />
+      </RecordTabs>
       <DeleteTask task={t} onDeleted={() => (t.parent_task_id ? onOpen(t.parent_task_id) : onClose())} />
     </div>
   );
@@ -218,7 +221,8 @@ function CustomFields({ task: t, config }: { task: TaskDetail; config: ProjectCo
   function change(key: string, value: unknown) {
     const next = { ...draft, [key]: value };
     setDraft(next);
-    const def = defs.find((d) => d.key === key)!;
+    const def = defs.find((d) => d.key === key);
+    if (!def) return;
     const r = validateCustomValues([def], next, { memberIds });
     setErrors((e) => { const c = { ...e }; if (r.errors[key]) c[key] = r.errors[key]; else delete c[key]; return c; });
     clearTimeout(timers.current[key]);

@@ -34,6 +34,7 @@ async function currentProjectId(supabase: Db, userId: string): Promise<string> {
     .from("project_members")
     .select("project_id")
     .eq("user_id", userId)
+    .eq("active", true)
     .order("created_at")
     .limit(1)
     .maybeSingle();
@@ -91,7 +92,7 @@ export const getProjectConfig = createServerFn({ method: "GET" })
       supabase.from("priorities").select("*").eq("project_id", projectId).order("position"),
       supabase.from("labels").select("*").eq("project_id", projectId).order("name"),
       supabase.from("custom_field_defs").select("*").eq("project_id", projectId).order("position"),
-      supabase.from("project_members").select("user_id").eq("project_id", projectId),
+      supabase.from("project_members").select("user_id").eq("project_id", projectId).eq("active", true),
     ]);
     const err = t.error || s.error || p.error || l.error || f.error || m.error;
     if (err) fail("load the project settings", err);

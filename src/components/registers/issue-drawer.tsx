@@ -1,3 +1,4 @@
+import { RecordTabs } from "@/components/collaboration/record-tabs";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Input } from "@/components/ui/input";
@@ -20,7 +21,7 @@ export function IssueDrawer({ id, config, canEdit, onClose }: { id: string | und
     <RecordSheet open={!!id} onClose={onClose} kind={term("issue", "singular")} title={q.data?.title}
       state={q.isPending ? "loading" : q.error || !q.data ? "error" : "ready"} saving={saving} readOnly={!canEdit}
       onRetry={() => q.refetch()} onDelete={() => id && del.mutate(id, { onSuccess: onClose })}>
-      {q.data && <Body key={q.data.id} x={q.data} config={config} canEdit={canEdit} />}
+      {q.data && <RecordTabs entityType="issue" entityId={q.data.id}><Body key={q.data.id} x={q.data} config={config} canEdit={canEdit} /></RecordTabs>}
     </RecordSheet>
   );
 }

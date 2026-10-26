@@ -30,6 +30,10 @@ export const Route = createFileRoute("/_authenticated/setup")({
     meta: [
       { title: "Set up your project — Compass Workflow" },
       { name: "description", content: "Create your project profile in a few quick steps." },
+      { property: "og:title", content: "Set up your project — Compass Workflow" },
+      { property: "og:description", content: "Create your project profile in a few quick steps." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: SetupWizard,

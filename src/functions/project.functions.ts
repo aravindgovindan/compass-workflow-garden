@@ -13,7 +13,8 @@ export const createProject = createServerFn({ method: "POST" })
     const { count, error: countError } = await supabase
       .from("project_members")
       .select("id", { count: "exact", head: true })
-      .eq("user_id", userId);
+      .eq("user_id", userId)
+    .eq("active", true);
     if (countError) throw new Error("Could not check your existing projects. Please try again.");
     if ((count ?? 0) > 0) throw new Error("You already belong to a project.");
 

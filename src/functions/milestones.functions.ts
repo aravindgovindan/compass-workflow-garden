@@ -53,7 +53,7 @@ export const listMilestoneTasks = createServerFn({ method: "GET" })
 
 async function checkOwner(supabase: Parameters<typeof requireWriter>[0], projectId: string, ownerId: string | null | undefined) {
   if (!ownerId) return;
-  const { data } = await supabase.from("project_members").select("user_id").eq("project_id", projectId).eq("user_id", ownerId).maybeSingle();
+  const { data } = await supabase.from("project_members").select("user_id").eq("project_id", projectId).eq("active", true).eq("user_id", ownerId).maybeSingle();
   if (!data) throw new Error("That person is not on this project.");
 }
 

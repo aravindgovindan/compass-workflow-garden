@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/_app/tasks")({
   beforeLoad: guardSection("tasks"),
   validateSearch: (s: Record<string, unknown>) => parseTaskSearch(s),
   search: { middlewares: [stripSearchParams(DEFAULTS as never)] },
-  head: () => ({ meta: [{ title: "Tasks — Compass Workflow" }, { name: "description", content: "Plan and track the work in a list or on a board." }] }),
+  head: () => ({ meta: [{ title: "Tasks — Compass Workflow" }, { name: "description", content: "Plan and track the work in a list or on a board." }, { property: "og:title", content: "Tasks — Compass Workflow" }, { property: "og:description", content: "Plan and track the work in a list or on a board." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Page,
 });
 

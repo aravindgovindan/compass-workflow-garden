@@ -55,6 +55,50 @@ export type Database = {
           },
         ]
       }
+      comments: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          edited_at: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string
+          body: string
+          created_at?: string
+          edited_at?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          edited_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       custom_field_defs: {
         Row: {
           archived: boolean
@@ -215,6 +259,48 @@ export type Database = {
           },
         ]
       }
+      mentions: {
+        Row: {
+          comment_id: string
+          created_at: string
+          id: string
+          mentioned_user_id: string
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          id?: string
+          mentioned_user_id: string
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          id?: string
+          mentioned_user_id?: string
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentions_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mentions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       milestones: {
         Row: {
           created_at: string
@@ -258,6 +344,53 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "milestones_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pending_invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          created_at: string
+          email: string
+          id: string
+          invited_by: string
+          project_id: string
+          role: Database["public"]["Enums"]["project_role"]
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          invited_by?: string
+          project_id: string
+          role?: Database["public"]["Enums"]["project_role"]
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string
+          project_id?: string
+          role?: Database["public"]["Enums"]["project_role"]
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pending_invitations_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
@@ -379,24 +512,30 @@ export type Database = {
       }
       project_members: {
         Row: {
+          active: boolean
           created_at: string
           id: string
           project_id: string
           role: Database["public"]["Enums"]["project_role"]
+          updated_at: string
           user_id: string
         }
         Insert: {
+          active?: boolean
           created_at?: string
           id?: string
           project_id: string
           role?: Database["public"]["Enums"]["project_role"]
+          updated_at?: string
           user_id: string
         }
         Update: {
+          active?: boolean
           created_at?: string
           id?: string
           project_id?: string
           role?: Database["public"]["Enums"]["project_role"]
+          updated_at?: string
           user_id?: string
         }
         Relationships: [
@@ -897,6 +1036,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_pending_invitation: { Args: never; Returns: string }
+      can_read_discussion: {
+        Args: { _eid: string; _pid: string; _type: string }
+        Returns: boolean
+      }
+      change_project_member: {
+        Args: {
+          _deactivate?: boolean
+          _project_id: string
+          _reassign_to?: string
+          _role: Database["public"]["Enums"]["project_role"]
+          _user_id: string
+        }
+        Returns: undefined
+      }
       convert_risk_to_issue: {
         Args: {
           _risk_id: string
@@ -912,6 +1066,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      invite_project_member: {
+        Args: {
+          _email: string
+          _project_id: string
+          _role: Database["public"]["Enums"]["project_role"]
+        }
+        Returns: string
+      }
       is_project_member: {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean
@@ -920,6 +1082,7 @@ export type Database = {
         Args: { _project_id: string; _user_id: string }
         Returns: Database["public"]["Enums"]["project_role"]
       }
+      revoke_project_invitation: { Args: { _id: string }; Returns: undefined }
       risk_rating_for: {
         Args: { _score: number }
         Returns: Database["public"]["Enums"]["risk_rating"]

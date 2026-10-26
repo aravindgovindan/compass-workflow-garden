@@ -23,7 +23,7 @@ import { useTerm } from "@/lib/terminology/use-term";
 export const Route = createFileRoute("/_authenticated/_app/risks")({
   validateSearch: (s: Record<string, unknown>) => riskSearch.parse(s),
   beforeLoad: guardSection("risks"),
-  head: () => ({ meta: [{ title: "Risks — Compass Workflow" }, { name: "description", content: "What could go wrong, and the plan for it." }] }),
+  head: () => ({ meta: [{ title: "Risks — Compass Workflow" }, { name: "description", content: "What could go wrong, and the plan for it." }, { property: "og:title", content: "Risks — Compass Workflow" }, { property: "og:description", content: "What could go wrong, and the plan for it." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Page,
 });
 

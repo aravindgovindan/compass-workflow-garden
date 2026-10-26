@@ -24,7 +24,7 @@ async function taskDefs(supabase: Db, projectId: string): Promise<CustomFieldDef
 }
 
 async function memberIds(supabase: Db, projectId: string): Promise<string[]> {
-  const { data } = await supabase.from("project_members").select("user_id").eq("project_id", projectId);
+  const { data } = await supabase.from("project_members").select("user_id").eq("project_id", projectId).eq("active", true);
   return (data ?? []).map((m) => m.user_id);
 }
 
