@@ -25,16 +25,16 @@ export async function filteredTasks(
   data: z.output<typeof taskList>,
   max = Infinity,
 ) {
-  const defs = Object.keys(data.cf).length
-    ? ((
-        await supabase
+  const defsResult = Object.keys(data.cf).length
+    ? await supabase
           .from("custom_field_defs")
           .select("key,type")
           .eq("project_id", projectId)
           .eq("entity_type", "task")
           .eq("archived", false)
-      ).data ?? [])
-    : [];
+    : { data: [], error: null };
+  if (defsResult.error) fail("load the custom field filters", defsResult.error);
+  const defs = defsResult.data ?? [];
   const build = () => {
     let q = supabase
       .from("tasks")

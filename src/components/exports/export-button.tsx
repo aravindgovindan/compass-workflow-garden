@@ -18,11 +18,13 @@ export function ExportButton<T>({
 }) {
   const term = useTerm();
   const call = useServerFn(fn);
-  const [file, setFile] = useState<FileResult | null>(null);
+  const filterKey = JSON.stringify(data);
+  const [file, setFile] = useState<(FileResult & { filterKey: string }) | null>(null);
+  const readyFile = file?.filterKey === filterKey ? file : null;
   const mutation = useMutation({
     mutationFn: () => call({ data }),
     onSuccess: (result) => {
-      if (matchMedia("(pointer: coarse)").matches) setFile(result);
+      if (matchMedia("(pointer: coarse)").matches) setFile({ ...result, filterKey });
       else downloadCsv(result.csv, result.filename);
     },
   });
@@ -34,8 +36,8 @@ export function ExportButton<T>({
         disabled={mutation.isPending}
         aria-label={`Export ${term(kind)}`}
         onClick={() => {
-          if (file) {
-            downloadCsv(file.csv, file.filename);
+          if (readyFile) {
+            downloadCsv(readyFile.csv, readyFile.filename);
             setFile(null);
           } else mutation.mutate();
         }}
@@ -45,7 +47,7 @@ export function ExportButton<T>({
         ) : (
           <Download className="size-4" />
         )}
-        {mutation.isPending ? "Exporting…" : file ? "Download CSV" : "Export"}
+        {mutation.isPending ? "Exporting…" : readyFile ? "Download CSV" : "Export"}
       </Button>
       {mutation.error && (
         <p role="alert" className="max-w-56 text-xs text-destructive">
