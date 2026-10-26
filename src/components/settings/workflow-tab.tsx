@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loader2, Plus, Star, Trash2 } from "lucide-react";
+import { Loader2, Star, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -113,4 +113,3 @@ function DeleteStatusDialog({ status, statuses, onClose }: { status: Status | nu
   );
 }
 
-export { Plus };
