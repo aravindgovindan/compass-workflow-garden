@@ -2,6 +2,7 @@ import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/r
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { getProjectConfig } from "@/functions/config.functions";
+import { friendlyError } from "@/lib/errors";
 
 /** Loaded once per session and cached; refreshed after any settings change. */
 export const projectConfigQuery = queryOptions({
@@ -25,6 +26,6 @@ export function useConfigMutation<I>(fn: (opts: { data: I }) => Promise<unknown>
       if (success) toast.success(success);
       return qc.invalidateQueries({ queryKey: projectConfigQuery.queryKey });
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Something went wrong"),
+    onError: (e) => toast.error(friendlyError(e)),
   });
 }

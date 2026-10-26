@@ -2,9 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { TeamDirectory } from "@/components/collaboration/team-directory";
 import { teamQuery } from "@/lib/collaboration/queries";
 import { guardSection } from "@/lib/auth/guard";
+import { PageError, PageNotFound, PagePending } from "@/components/common/route-states";
 export const Route = createFileRoute("/_authenticated/_app/team")({
   beforeLoad: guardSection("team"),
   loader: ({ context }) => context.queryClient.ensureQueryData(teamQuery),
+  pendingComponent: PagePending,
+  errorComponent: PageError,
+  notFoundComponent: PageNotFound,
   head: () => ({
     meta: [
       { title: "Team — Compass Workflow" },

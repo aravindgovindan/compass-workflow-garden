@@ -1,5 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import { friendlyError } from "@/lib/errors";
 
 export function EmptyState({
   icon: Icon,
@@ -28,11 +30,11 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
   return (
     <div role="alert" className="rounded-xl border border-destructive/30 bg-health-red-soft p-6 text-sm">
       <p className="font-medium text-destructive">Something went wrong</p>
-      <p className="mt-1 text-muted-foreground">{message}</p>
+      <p className="mt-1 text-muted-foreground">{friendlyError(new Error(message))}</p>
       {onRetry && (
-        <button onClick={onRetry} className="mt-3 text-sm font-medium text-primary underline-offset-4 hover:underline">
+        <Button variant="link" onClick={onRetry} className="mt-3 h-auto p-0">
           Try again
-        </button>
+        </Button>
       )}
     </div>
   );

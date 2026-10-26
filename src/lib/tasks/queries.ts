@@ -9,6 +9,7 @@ import {
 import { createPhase, deletePhase, listPhases, reorderPhases, updatePhase, type Phase } from "@/functions/phases.functions";
 import { applyMove } from "./board";
 import type { TaskFilters } from "./view-params";
+import { friendlyError } from "@/lib/errors";
 
 type ListData = { rows: TaskListItem[]; total: number };
 type UpdateInput = z.input<typeof taskUpdate>;
@@ -30,7 +31,7 @@ export const taskDetailQuery = (id: string) =>
   queryOptions({ queryKey: ["tasks", "detail", id], queryFn: () => getTask({ data: { id } }) });
 export const phasesQuery = queryOptions({ queryKey: ["phases"], queryFn: () => listPhases() });
 
-const errMsg = (e: unknown) => (e instanceof Error ? e.message : "Something went wrong");
+const errMsg = friendlyError;
 const refreshTasks = (qc: QueryClient) =>
   Promise.all([qc.invalidateQueries({ queryKey: ["tasks"] }), qc.invalidateQueries({ queryKey: ["milestones"] })]);
 
@@ -154,7 +155,7 @@ export function useChecklistActions(taskId: string) {
   const update = useTaskAction(taskId, (i: { id: string; text?: string; done?: boolean }) => updateChecklistItem({ data: i }),
     (d, i) => ({ ...d, checklist: d.checklist.map((c) => (c.id === i.id ? { ...c, ...i } : c)) }));
   const reorder = useTaskAction(taskId, (ids: string[]) => reorderChecklist({ data: { taskId, ids } }),
-    (d, ids) => ({ ...d, checklist: ids.map((id) => d.checklist.find((c) => c.id === id)!).filter(Boolean) }));
+    (d, ids) => ({ ...d, checklist: ids.flatMap((id) => { const item = d.checklist.find((c) => c.id === id); return item ? [item] : []; }) }));
   const remove = useTaskAction(taskId, (id: string) => deleteChecklistItem({ data: { id } }),
     (d, id) => ({ ...d, checklist: d.checklist.filter((c) => c.id !== id) }));
   return { add, update, reorder, remove };
@@ -173,7 +174,7 @@ export function usePhaseActions() {
       mutationFn: (ids: string[]) => reorderPhases({ data: { ids } }),
       onMutate: (ids: string[]) => {
         const prev = qc.getQueryData<Phase[]>(phasesQuery.queryKey);
-        if (prev) qc.setQueryData<Phase[]>(phasesQuery.queryKey, ids.map((id) => prev.find((p) => p.id === id)!).filter(Boolean));
+        if (prev) qc.setQueryData<Phase[]>(phasesQuery.queryKey, ids.flatMap((id) => { const item = prev.find((p) => p.id === id); return item ? [item] : []; }));
         return { prev };
       },
       onError: (e: unknown, _i: string[], ctx?: { prev: Phase[] | undefined }) => {
