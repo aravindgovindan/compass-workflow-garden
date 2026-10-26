@@ -84,9 +84,7 @@ begin
       raise exception 'A task with sub-tasks cannot become a sub-task'; end if;
   end if;
   if _cat = 'done' then
-    if tg_op = 'INSERT' or new.completed_at is null or old.status_id is distinct from new.status_id and old.completed_at is null then
-      new.completed_at := coalesce(case when tg_op = 'UPDATE' then old.completed_at end, now());
-    end if;
+    new.completed_at := case when tg_op = 'UPDATE' and old.completed_at is not null then old.completed_at else now() end;
   else
     new.completed_at := null;
   end if;
