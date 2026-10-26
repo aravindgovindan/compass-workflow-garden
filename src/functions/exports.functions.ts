@@ -192,7 +192,7 @@ export const exportIssues = createServerFn({ method: "POST" })
           human(r.status),
           r.target_date,
           r.resolution,
-          r.source_risk_id,
+          c.name(r.source_risk_id),
           ...c.custom(r.custom_fields),
         ]),
       ),

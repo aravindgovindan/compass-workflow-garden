@@ -3,7 +3,7 @@ import { fetchAll } from "./task-list.server";
 import { fail, type Db } from "@/lib/project-access.server";
 import type { ExportKind } from "./csv";
 export async function exportContext(db: Db, pid: string, kind: ExportKind) {
-  const [terms, fields, people, statuses, priorities, labels, phases, milestones] =
+  const [terms, fields, people, statuses, priorities, labels, phases, milestones, risks] =
     await Promise.all([
       db.from("terminology").select("key,singular,plural").eq("project_id", pid),
       kind === "milestone"
@@ -26,6 +26,7 @@ export async function exportContext(db: Db, pid: string, kind: ExportKind) {
       fetchAll((f, t) =>
         db.from("milestones").select("id,name").eq("project_id", pid).order("id").range(f, t),
       ),
+      kind === "issue" ? fetchAll((f,t)=>db.from("risks").select("id,title").eq("project_id",pid).order("id").range(f,t)) : Promise.resolve({rows:[]}),
     ]);
   const error = terms.error || fields.error || statuses.error || priorities.error || labels.error;
   if (error) fail("prepare the export", error);
@@ -36,6 +37,7 @@ export async function exportContext(db: Db, pid: string, kind: ExportKind) {
     ...(labels.data ?? []).map((p) => [p.id, p.name] as const),
     ...phases.rows.map((p) => [p.id, p.name] as const),
     ...milestones.rows.map((p) => [p.id, p.name] as const),
+    ...risks.rows.map((p) => [p.id,p.title] as const),
   ]);
   const map = toTermMap(terms.data ?? []);
   const term = (key: ExportKind | "phase" | "subtask") => resolveTerm(map, key, "singular");
