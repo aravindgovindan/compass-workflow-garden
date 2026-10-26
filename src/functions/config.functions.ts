@@ -24,6 +24,11 @@ import type { CustomFieldType } from "@/lib/custom-fields/types";
 
 type Db = SupabaseClient<Database>;
 
+/** Drop undefined keys (partial updates; required by exactOptionalPropertyTypes). */
+function clean<T extends object>(o: T): { [K in keyof T]?: Exclude<T[K], undefined> } {
+  return Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as never;
+}
+
 async function currentProjectId(supabase: Db, userId: string): Promise<string> {
   const { data } = await supabase
     .from("project_members")
@@ -137,7 +142,7 @@ export const updateStatus = createServerFn({ method: "POST" })
       if (error) fail("change the default status", error);
     }
     const { error } = await context.supabase
-      .from("workflow_statuses").update({ ...patch, ...(is_default ? { is_default: true } : {}) })
+      .from("workflow_statuses").update({ ...clean(patch), ...(is_default ? { is_default: true } : {}) })
       .eq("id", id).eq("project_id", projectId);
     if (error) fail("update the status", error);
     return { ok: true };
@@ -182,7 +187,7 @@ export const updatePriority = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const projectId = await requireOwner(context.supabase, context.userId);
     const { id, ...patch } = data;
-    const { error } = await context.supabase.from("priorities").update(patch).eq("id", id).eq("project_id", projectId);
+    const { error } = await context.supabase.from("priorities").update(clean(patch)).eq("id", id).eq("project_id", projectId);
     if (error) fail("update the priority", error);
     return { ok: true };
   });
@@ -214,7 +219,7 @@ export const updateLabel = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const projectId = await requireOwner(context.supabase, context.userId);
     const { id, ...patch } = data;
-    const { error } = await context.supabase.from("labels").update(patch).eq("id", id).eq("project_id", projectId);
+    const { error } = await context.supabase.from("labels").update(clean(patch)).eq("id", id).eq("project_id", projectId);
     if (error) fail("update the label", error);
     return { ok: true };
   });
@@ -270,7 +275,8 @@ export const createCustomField = createServerFn({ method: "POST" })
       .eq("project_id", projectId).eq("entity_type", data.entity_type);
     const { default_value, ...rest } = data;
     const { error } = await context.supabase.from("custom_field_defs").insert({
-      ...rest,
+      ...clean(rest),
+      entity_type: rest.entity_type, key: rest.key, name: rest.name, type: rest.type,
       default_value: (default_value ?? null) as Database["public"]["Tables"]["custom_field_defs"]["Insert"]["default_value"],
       project_id: projectId,
       position: count ?? 0,
@@ -288,7 +294,7 @@ export const updateCustomField = createServerFn({ method: "POST" })
     const { error } = await context.supabase
       .from("custom_field_defs")
       .update({
-        ...patch,
+        ...clean(patch),
         ...(default_value !== undefined
           ? { default_value: default_value as Database["public"]["Tables"]["custom_field_defs"]["Update"]["default_value"] }
           : {}),

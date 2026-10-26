@@ -173,16 +173,16 @@ function FieldForm({ entity, field, onDone }: { entity: CustomFieldEntity; field
       </DialogHeader>
       <div className="space-y-1.5">
         <Label htmlFor="f-name">Name</Label>
-        <Input id="f-name" value={name} aria-invalid={!!errors.name}
+        <Input id="f-name" value={name} aria-invalid={!!errors["name"]}
           onChange={(e) => { setName(e.target.value); if (!keyTouched) setKey(suggestFieldKey(e.target.value)); }} />
-        {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+        {errors["name"] && <p className="text-xs text-destructive">{errors["name"]}</p>}
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="f-key">Key</Label>
-          <Input id="f-key" className="font-mono" value={key} disabled={!!field} aria-invalid={!!errors.key}
+          <Input id="f-key" className="font-mono" value={key} disabled={!!field} aria-invalid={!!errors["key"]}
             onChange={(e) => { setKey(e.target.value); setKeyTouched(true); }} />
-          {errors.key && <p className="text-xs text-destructive">{errors.key}</p>}
+          {errors["key"] && <p className="text-xs text-destructive">{errors["key"]}</p>}
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="f-type">Type</Label>
@@ -195,8 +195,8 @@ function FieldForm({ entity, field, onDone }: { entity: CustomFieldEntity; field
       {TYPES_WITH_OPTIONS.includes(type) && (
         <div className="space-y-1.5">
           <Label htmlFor="f-opts">Options (one per line)</Label>
-          <Textarea id="f-opts" rows={4} value={options} onChange={(e) => setOptions(e.target.value)} aria-invalid={!!errors.options} />
-          {errors.options && <p className="text-xs text-destructive">{errors.options}</p>}
+          <Textarea id="f-opts" rows={4} value={options} onChange={(e) => setOptions(e.target.value)} aria-invalid={!!errors["options"]} />
+          {errors["options"] && <p className="text-xs text-destructive">{errors["options"]}</p>}
         </div>
       )}
       <div className="flex items-center gap-2">

@@ -19,7 +19,7 @@ export function CustomFieldInput({
   value: unknown;
   onChange: (v: unknown) => void;
   members?: Member[];
-  error?: string;
+  error?: string | undefined;
 }) {
   const id = `cf-${def.key}`;
   const describedBy = error ? `${id}-err` : undefined;
