@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { Database } from "@/integrations/supabase/types";
+import type { Database, Json } from "@/integrations/supabase/types";
 import {
   customFieldCreate,
   customFieldUpdate,
@@ -277,7 +277,7 @@ export const createCustomField = createServerFn({ method: "POST" })
     const { error } = await context.supabase.from("custom_field_defs").insert({
       ...clean(rest),
       entity_type: rest.entity_type, key: rest.key, name: rest.name, type: rest.type,
-      default_value: (default_value ?? null) as Database["public"]["Tables"]["custom_field_defs"]["Insert"]["default_value"],
+      default_value: (default_value ?? null) as Json,
       project_id: projectId,
       position: count ?? 0,
     });
@@ -296,7 +296,7 @@ export const updateCustomField = createServerFn({ method: "POST" })
       .update({
         ...clean(patch),
         ...(default_value !== undefined
-          ? { default_value: default_value as Database["public"]["Tables"]["custom_field_defs"]["Update"]["default_value"] }
+          ? { default_value: (default_value ?? null) as Json }
           : {}),
       })
       .eq("id", id)

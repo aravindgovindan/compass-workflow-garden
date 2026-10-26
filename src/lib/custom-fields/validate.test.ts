@@ -5,12 +5,12 @@ import type { CustomFieldDef, CustomFieldType } from "./types";
 const def = (type: CustomFieldType, extra: Partial<CustomFieldDef> = {}): CustomFieldDef => ({
   id: type, key: "f", name: "Field", type, options: ["A", "B"], required: false, ...extra,
 });
-const ok = (d: CustomFieldDef, v: unknown, memberIds?: string[]) => validateCustomValues([d], { f: v }, { memberIds });
+const ok = (d: CustomFieldDef, v: unknown, memberIds?: string[]) => validateCustomValues([d], { f: v }, memberIds ? { memberIds } : {});
 const UID = "11111111-1111-4111-8111-111111111111";
 
 describe("custom field validator", () => {
   it("text", () => {
-    expect(ok(def("text"), " hi ").values.f).toBe("hi");
+    expect(ok(def("text"), " hi ").values["f"]).toBe("hi");
     expect(ok(def("text"), 5).ok).toBe(false);
     expect(ok(def("text"), "x".repeat(256)).ok).toBe(false);
   });
@@ -19,8 +19,8 @@ describe("custom field validator", () => {
     expect(ok(def("long_text"), "x".repeat(5001)).ok).toBe(false);
   });
   it("number", () => {
-    expect(ok(def("number"), 4.5).values.f).toBe(4.5);
-    expect(ok(def("number"), "12").values.f).toBe(12);
+    expect(ok(def("number"), 4.5).values["f"]).toBe(4.5);
+    expect(ok(def("number"), "12").values["f"]).toBe(12);
     expect(ok(def("number"), "abc").ok).toBe(false);
   });
   it("date", () => {
@@ -32,7 +32,7 @@ describe("custom field validator", () => {
     expect(ok(def("dropdown"), "C").ok).toBe(false);
   });
   it("multi_select", () => {
-    expect(ok(def("multi_select"), ["A", "A", "B"]).values.f).toEqual(["A", "B"]);
+    expect(ok(def("multi_select"), ["A", "A", "B"]).values["f"]).toEqual(["A", "B"]);
     expect(ok(def("multi_select"), ["A", "Z"]).ok).toBe(false);
     expect(ok(def("multi_select"), "A").ok).toBe(false);
   });
@@ -51,7 +51,7 @@ describe("custom field validator", () => {
     expect(ok(def("url"), "not a url").ok).toBe(false);
   });
   it("required fields must be filled; unknown and archived keys are dropped", () => {
-    expect(ok(def("text", { required: true }), "").errors.f).toMatch(/required/);
+    expect(ok(def("text", { required: true }), "").errors["f"]).toMatch(/required/);
     const r = validateCustomValues([def("text", { archived: true })], { f: "x", other: 1 });
     expect(r.ok).toBe(true);
     expect(r.values).toEqual({});

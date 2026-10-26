@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { checkStatusDeletion, nextDefaultStatus } from "./status-rules";
 
-const s = [
+const s: { id: string; is_default: boolean }[] = [
   { id: "a", is_default: true },
   { id: "b", is_default: false },
 ];
@@ -21,7 +21,7 @@ describe("status deletion rules", () => {
     expect(checkStatusDeletion(s, "b", 3, "zzz")).not.toBeNull();
   });
   it("blocks deleting the last status", () => {
-    expect(checkStatusDeletion([s[0]], "a", 0)).toMatch(/at least one/);
+    expect(checkStatusDeletion([{ id: "a", is_default: true }], "a", 0)).toMatch(/at least one/);
   });
   it("hands the default to another status when the default is deleted", () => {
     expect(nextDefaultStatus(s, "a")).toBe("b");
