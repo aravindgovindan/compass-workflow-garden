@@ -29,6 +29,13 @@
       "when": 1793028441768,
       "tag": "0003_task_views",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793030366931,
+      "tag": "0004_milestones",
+      "breakpoints": true
     }
   ]
 }
