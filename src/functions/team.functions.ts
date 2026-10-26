@@ -57,6 +57,6 @@ export const changeMember = createServerFn({method:'POST'}).middleware([requireS
   if(members.error) teamError(members.error);
   const target = members.data?.find(m => m.user_id === data.userId); if(!target) throw new Error('Active member not found.');
   assertOwnerRemains(target.role,members.data?.filter(m => m.role === 'owner').length ?? 0,data.role,data.deactivate);
-  const result = await context.supabase.rpc('change_project_member',{_project_id:projectId,_user_id:data.userId,_role:data.role,_deactivate:data.deactivate,_reassign_to:data.reassignTo});
+  const result = await context.supabase.rpc('change_project_member',{_project_id:projectId,_user_id:data.userId,_role:data.role,_deactivate:data.deactivate,...(data.reassignTo ? {_reassign_to:data.reassignTo} : {})});
   if(result.error) teamError(result.error); return {ok:true};
 });

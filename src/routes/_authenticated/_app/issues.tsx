@@ -22,7 +22,7 @@ import { useTerm } from "@/lib/terminology/use-term";
 export const Route = createFileRoute("/_authenticated/_app/issues")({
   validateSearch: (s: Record<string, unknown>) => issueSearch.parse(s),
   beforeLoad: guardSection("issues"),
-  head: () => ({ meta: [{ title: "Issues — Compass Workflow" }, { name: "description", content: "Problems that need resolving now." }] }),
+  head: () => ({ meta: [{ title: "Issues — Compass Workflow" }, { name: "description", content: "Problems that need resolving now." }, { property: "og:title", content: "Issues — Compass Workflow" }, { property: "og:description", content: "Problems that need resolving now." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Page,
 });
 

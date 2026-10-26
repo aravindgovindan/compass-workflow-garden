@@ -22,7 +22,7 @@ import { useTerm } from "@/lib/terminology/use-term";
 
 export const Route = createFileRoute("/_authenticated/_app/milestones")({
   beforeLoad: guardSection("milestones"),
-  head: () => ({ meta: [{ title: "Milestones — Compass Workflow" }, { name: "description", content: "Key dates and how close you are." }] }),
+  head: () => ({ meta: [{ title: "Milestones — Compass Workflow" }, { name: "description", content: "Key dates and how close you are." }, { property: "og:title", content: "Milestones — Compass Workflow" }, { property: "og:description", content: "Key dates and how close you are." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Page,
 });
 
