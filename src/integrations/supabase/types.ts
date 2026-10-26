@@ -338,6 +338,47 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_views: {
+        Row: {
+          created_at: string
+          filters: Json
+          id: string
+          name: string
+          project_id: string
+          updated_at: string
+          user_id: string
+          view_type: string
+        }
+        Insert: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          name: string
+          project_id: string
+          updated_at?: string
+          user_id: string
+          view_type?: string
+        }
+        Update: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          name?: string
+          project_id?: string
+          updated_at?: string
+          user_id?: string
+          view_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_views_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_checklist_items: {
         Row: {
           created_at: string
@@ -565,6 +606,44 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "terminology_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_view_prefs: {
+        Row: {
+          created_at: string
+          id: string
+          list_columns: Json
+          project_id: string
+          updated_at: string
+          user_id: string
+          view_mode: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          list_columns?: Json
+          project_id: string
+          updated_at?: string
+          user_id: string
+          view_mode?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          list_columns?: Json
+          project_id?: string
+          updated_at?: string
+          user_id?: string
+          view_mode?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_view_prefs_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
