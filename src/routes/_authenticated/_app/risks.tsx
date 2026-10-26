@@ -1,3 +1,5 @@
+import { ExportButton } from "@/components/exports/export-button";
+import { exportRisks } from "@/functions/exports.functions";
 import { useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -55,7 +57,7 @@ function Page() {
   return (
     <>
       <PageHeader title={title} description="What could go wrong, and the plan for it."
-        actions={writer && <NewRecordButton kind="risk" onCreated={(id) => set({ item: id })} />} />
+        actions={<div className="flex flex-wrap gap-2"><ExportButton kind="risk" fn={exportRisks} data={filters}/>{writer && <NewRecordButton kind="risk" onCreated={(id) => set({ item: id })} />}</div>} />
       {list.isPending || config.isPending ? (
         <div className="grid gap-4 lg:grid-cols-[1fr_300px]"><Skeleton className="h-64" /><Skeleton className="h-64" /></div>
       ) : list.error || config.error || !config.data ? (

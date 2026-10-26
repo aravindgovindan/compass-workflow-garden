@@ -1,3 +1,5 @@
+import { ExportButton } from "@/components/exports/export-button";
+import { exportTasks } from "@/functions/exports.functions";
 import { useEffect, useMemo } from "react";
 import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -83,7 +85,8 @@ function Page() {
             <span className="text-xs text-muted-foreground" aria-live="polite">
               {tasks.data.rows.length} {term("task", tasks.data.rows.length === 1 ? "singular" : "plural").toLowerCase()}{tasks.isFetching ? " · updating…" : ""}
             </span>
-            <div className="ml-auto flex gap-2">
+            <div className="ml-auto flex flex-wrap gap-2">
+              <ExportButton kind="task" fn={exportTasks} data={{topLevelOnly:true,search:filters.q||undefined,statusIds:filters.status,priorityIds:filters.priority,assigneeIds:filters.assignee,phaseIds:filters.phase,milestoneIds:filters.milestone,labelIds:filters.label,dueFrom:filters.dueFrom,dueTo:filters.dueTo,overdue:filters.overdue,cf:filters.cf,sort:(["position","title","due_date","created_at","updated_at"] as const).find(x=>x===search.sort)??"position",dir:search.dir==='desc'?'desc':'asc'}}/>
               {mode === "list" && <ColumnPicker choices={columnChoices(config.data, term)} visible={visible} onChange={(ids) => setPrefs.mutate({ list_columns: ids })} />}
               <SavedViewsMenu current={viewState(search)} mode={mode}
                 onLoad={(v) => {

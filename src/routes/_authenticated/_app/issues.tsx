@@ -1,3 +1,5 @@
+import { ExportButton } from "@/components/exports/export-button";
+import { exportIssues } from "@/functions/exports.functions";
 import { useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -60,7 +62,7 @@ function Page() {
   return (
     <>
       <PageHeader title={title} description="Problems that need resolving now."
-        actions={writer && <NewRecordButton kind="issue" onCreated={(id) => set({ item: id })} />} />
+        actions={<div className="flex flex-wrap gap-2"><ExportButton kind="issue" fn={exportIssues} data={filters}/>{writer && <NewRecordButton kind="issue" onCreated={(id) => set({ item: id })} />}</div>} />
       {list.isPending || config.isPending ? (
         <Skeleton className="h-64 w-full" />
       ) : list.error || config.error || !config.data ? (

@@ -1,3 +1,5 @@
+import { ExportButton } from "@/components/exports/export-button";
+import { exportMilestones } from "@/functions/exports.functions";
 import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -40,7 +42,7 @@ function Page() {
   return (
     <>
       <PageHeader title={title} description="Key dates and how close you are."
-        actions={writer && <Button onClick={() => setCreating(true)}><Plus className="size-4" />New {term("milestone", "singular").toLowerCase()}</Button>} />
+        actions={<div className="flex flex-wrap gap-2"><ExportButton kind="milestone" fn={exportMilestones} data={{}}/>{writer && <Button onClick={() => setCreating(true)}><Plus className="size-4" />New {term("milestone", "singular").toLowerCase()}</Button>}</div>} />
       {list.isPending || config.isPending ? (
         <div className="space-y-3"><Skeleton className="h-28 w-full" /><Skeleton className="h-28 w-full" /></div>
       ) : list.error || config.error || !config.data ? (

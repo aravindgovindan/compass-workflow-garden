@@ -1,3 +1,4 @@
+import { milestoneRows } from "@/lib/exports/milestones-list.server";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
@@ -17,23 +18,7 @@ export const listMilestones = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<MilestoneItem[]> => {
     const { supabase, userId } = context;
     const { projectId } = await projectAccess(supabase, userId);
-    const [m, t, s] = await Promise.all([
-      supabase.from("milestones").select("*").eq("project_id", projectId).order("target_date").order("created_at"),
-      supabase.from("tasks").select("milestone_id, status_id").eq("project_id", projectId).not("milestone_id", "is", null).limit(10000),
-      supabase.from("workflow_statuses").select("id, category").eq("project_id", projectId),
-    ]);
-    if (m.error) fail("load the milestones", m.error);
-    const cat = new Map((s.data ?? []).map((x) => [x.id, x.category as string]));
-    const byMs = new Map<string, string[]>();
-    for (const r of t.data ?? []) {
-      const list = byMs.get(r.milestone_id!) ?? [];
-      list.push(cat.get(r.status_id) ?? "todo");
-      byMs.set(r.milestone_id!, list);
-    }
-    return (m.data ?? []).map((row) => {
-      const progress = milestoneProgress(byMs.get(row.id) ?? []);
-      return { ...row, progress, status: milestoneStatus({ targetDate: row.target_date, progress, override: row.status_override }) };
-    });
+    return milestoneRows(supabase,projectId);
   });
 
 export const listMilestoneTasks = createServerFn({ method: "GET" })
