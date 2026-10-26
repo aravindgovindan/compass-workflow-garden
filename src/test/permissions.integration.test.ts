@@ -1,9 +1,10 @@
 import postgres from "postgres";
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
 
 const dbUrl = process.env["SUPABASE_DB_URL"];
 const db = dbUrl ? postgres(dbUrl, { max: 1, connect_timeout: 5 }) : null;
 const live = db ? describe : describe.skip;
+afterAll(async () => { if (db) await db.end(); });
 
 type Tx = postgres.TransactionSql;
 type Ctx = { project: string; status: string; risk: string; task: string; activity: string; owner: string; member: string; stakeholder: string; outsider: string };
@@ -15,12 +16,15 @@ async function withFixture(run: (tx: Tx, ctx: Ctx) => Promise<void>) {
       select gen_random_uuid(), 'authenticated', 'authenticated', 'step10-' || gen_random_uuid() || '@example.com', now(), now(), now() from generate_series(1,4) returning id`;
     const [owner, member, stakeholder, outsider] = users.map((u) => u.id) as [string, string, string, string];
     const [project] = await tx<{ id: string }[]>`insert into public.projects(name, code, created_by) values ('Permission test', 'PERMTEST', ${owner}) returning id`;
-    await tx`insert into public.project_members(project_id, user_id, role) values (${project!.id}, ${member}, 'member'), (${project!.id}, ${stakeholder}, 'stakeholder')`;
-    const [status] = await tx<{ id: string }[]>`select id from public.workflow_statuses where project_id = ${project!.id} order by position limit 1`;
-    const [task] = await tx<{ id: string }[]>`insert into public.tasks(project_id, title, status_id) values (${project!.id}, 'Private task', ${status!.id}) returning id`;
-    const [risk] = await tx<{ id: string }[]>`insert into public.risks(project_id, title, probability, impact) values (${project!.id}, 'Visible risk', 2, 2) returning id`;
-    const [activity] = await tx<{ id: string }[]>`select id from public.activity_log where project_id = ${project!.id} limit 1`;
-    await run(tx, { project: project!.id, status: status!.id, risk: risk!.id, task: task!.id, activity: activity!.id, owner, member, stakeholder, outsider });
+    if (!project) throw new Error("Missing fixture project");
+    await tx`insert into public.project_members(project_id, user_id, role) values (${project.id}, ${member}, 'member'), (${project.id}, ${stakeholder}, 'stakeholder')`;
+    const [status] = await tx<{ id: string }[]>`select id from public.workflow_statuses where project_id = ${project.id} order by position limit 1`;
+    if (!status) throw new Error("Missing fixture status");
+    const [task] = await tx<{ id: string }[]>`insert into public.tasks(project_id, title, status_id) values (${project.id}, 'Private task', ${status.id}) returning id`;
+    const [risk] = await tx<{ id: string }[]>`insert into public.risks(project_id, title, probability, impact) values (${project.id}, 'Visible risk', 2, 2) returning id`;
+    const [activity] = await tx<{ id: string }[]>`select id from public.activity_log where project_id = ${project.id} limit 1`;
+    if (!task || !risk || !activity) throw new Error("Missing fixture records");
+    await run(tx, { project: project.id, status: status.id, risk: risk.id, task: task.id, activity: activity.id, owner, member, stakeholder, outsider });
     throw new Error("rollback fixture");
   }).catch((e: unknown) => { if (!(e instanceof Error) || e.message !== "rollback fixture") throw e; });
 }
@@ -31,13 +35,15 @@ async function as(tx: Tx, userId: string) {
 }
 async function denied(tx: Tx, query: () => Promise<unknown>) {
   await tx`savepoint denied_check`;
-  try {
-    const result = await query() as { count?: number };
-    expect(result.count ?? 0).toBe(0);
-  } catch {
-    // A permission, RLS or trigger failure is the expected result.
-  } finally {
-    await tx`rollback to savepoint denied_check`;
+  let result: { count?: number } | undefined;
+  let failure: unknown;
+  try { result = await query() as { count?: number }; }
+  catch (e) { failure = e; }
+  finally { await tx`rollback to savepoint denied_check`; }
+  if (failure) {
+    expect((failure as { code?: string }).code).toMatch(/^(42501|P0001)$/);
+  } else {
+    expect(result?.count).toBe(0);
   }
 }
 
@@ -92,7 +98,8 @@ live("database permission regressions", () => {
     await as(tx, c.stakeholder);
     expect(await tx`select id from public.tasks where id = ${c.task}`).toHaveLength(0);
     const [snapshot] = await tx<{ value: { total: number; overdue?: unknown } }[]>`select public.dashboard_snapshot(${c.project}) as value`;
-    expect(snapshot!.value.total).toBe(1);
-    expect(snapshot!.value.overdue).toBeUndefined();
+    if (!snapshot) throw new Error("Missing snapshot");
+    expect(snapshot.value.total).toBe(1);
+    expect(snapshot.value.overdue).toBeUndefined();
   }));
 });
