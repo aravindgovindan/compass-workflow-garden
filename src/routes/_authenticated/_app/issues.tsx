@@ -10,5 +10,5 @@ export const Route = createFileRoute("/_authenticated/_app/issues")({
 });
 
 function Page() {
-  return <SectionPlaceholder title="Issues" description="Problems that need resolving now." icon={AlertTriangle} />;
+  return <SectionPlaceholder term="issue" description="Problems that need resolving now." icon={AlertTriangle} />;
 }

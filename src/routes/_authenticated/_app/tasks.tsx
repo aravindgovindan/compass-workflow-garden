@@ -10,5 +10,5 @@ export const Route = createFileRoute("/_authenticated/_app/tasks")({
 });
 
 function Page() {
-  return <SectionPlaceholder title="Tasks" description="Plan and track the work." icon={ListTodo} />;
+  return <SectionPlaceholder term="task" description="Plan and track the work." icon={ListTodo} />;
 }

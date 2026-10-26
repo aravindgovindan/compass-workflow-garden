@@ -10,5 +10,5 @@ export const Route = createFileRoute("/_authenticated/_app/team")({
 });
 
 function Page() {
-  return <SectionPlaceholder title="Team" description="The people on this project." icon={Users} />;
+  return <SectionPlaceholder term="team" description="The people on this project." icon={Users} />;
 }

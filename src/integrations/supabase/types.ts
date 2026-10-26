@@ -55,6 +55,135 @@ export type Database = {
           },
         ]
       }
+      custom_field_defs: {
+        Row: {
+          archived: boolean
+          created_at: string
+          default_value: Json | null
+          entity_type: Database["public"]["Enums"]["custom_field_entity"]
+          id: string
+          key: string
+          name: string
+          options: Json
+          position: number
+          project_id: string
+          required: boolean
+          type: Database["public"]["Enums"]["custom_field_type"]
+          updated_at: string
+        }
+        Insert: {
+          archived?: boolean
+          created_at?: string
+          default_value?: Json | null
+          entity_type: Database["public"]["Enums"]["custom_field_entity"]
+          id?: string
+          key: string
+          name: string
+          options?: Json
+          position?: number
+          project_id: string
+          required?: boolean
+          type: Database["public"]["Enums"]["custom_field_type"]
+          updated_at?: string
+        }
+        Update: {
+          archived?: boolean
+          created_at?: string
+          default_value?: Json | null
+          entity_type?: Database["public"]["Enums"]["custom_field_entity"]
+          id?: string
+          key?: string
+          name?: string
+          options?: Json
+          position?: number
+          project_id?: string
+          required?: boolean
+          type?: Database["public"]["Enums"]["custom_field_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_field_defs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      labels: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          name: string
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          name: string
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "labels_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      priorities: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          name: string
+          position: number
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          name: string
+          position?: number
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+          position?: number
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "priorities_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -165,6 +294,88 @@ export type Database = {
         }
         Relationships: []
       }
+      terminology: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          plural: string
+          project_id: string
+          singular: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          plural: string
+          project_id: string
+          singular: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          plural?: string
+          project_id?: string
+          singular?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "terminology_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_statuses: {
+        Row: {
+          category: Database["public"]["Enums"]["status_category"]
+          color: string
+          created_at: string
+          id: string
+          is_default: boolean
+          name: string
+          position: number
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["status_category"]
+          color?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name: string
+          position?: number
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["status_category"]
+          color?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+          position?: number
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_statuses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -186,14 +397,27 @@ export type Database = {
         Args: { _project_id: string; _user_id: string }
         Returns: Database["public"]["Enums"]["project_role"]
       }
+      seed_project_config: { Args: { _project_id: string }; Returns: undefined }
       shares_project_with: {
         Args: { _other: string; _user_id: string }
         Returns: boolean
       }
     }
     Enums: {
+      custom_field_entity: "task" | "risk" | "issue"
+      custom_field_type:
+        | "text"
+        | "long_text"
+        | "number"
+        | "date"
+        | "dropdown"
+        | "multi_select"
+        | "user"
+        | "checkbox"
+        | "url"
       project_health: "green" | "amber" | "red"
       project_role: "owner" | "member" | "stakeholder"
+      status_category: "todo" | "in_progress" | "done"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -321,8 +545,21 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      custom_field_entity: ["task", "risk", "issue"],
+      custom_field_type: [
+        "text",
+        "long_text",
+        "number",
+        "date",
+        "dropdown",
+        "multi_select",
+        "user",
+        "checkbox",
+        "url",
+      ],
       project_health: ["green", "amber", "red"],
       project_role: ["owner", "member", "stakeholder"],
+      status_category: ["todo", "in_progress", "done"],
     },
   },
 } as const

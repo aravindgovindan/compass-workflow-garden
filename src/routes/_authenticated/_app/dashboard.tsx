@@ -9,5 +9,5 @@ export const Route = createFileRoute("/_authenticated/_app/dashboard")({
 });
 
 function Page() {
-  return <SectionPlaceholder title="Dashboard" description="Project health, progress and what needs attention." icon={LayoutDashboard} />;
+  return <SectionPlaceholder term="dashboard" description="Project health, progress and what needs attention." icon={LayoutDashboard} />;
 }

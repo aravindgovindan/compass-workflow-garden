@@ -18,3 +18,7 @@
 - Server functions live in `src/functions/*.functions.ts` (not `src/server/`, which is blocked from client bundles); validate input with Zod.
 - UI labels for entities come from the terminology map (`src/lib/terminology`), never hard-coded strings.
 - Colors only via semantic tokens in `src/styles.css` (incl. health-green/amber/red).
+- Project configuration (statuses, priorities, labels, terminology, custom field defs) is loaded once via `projectConfigQuery` (`src/lib/config/use-config.ts`) and invalidated after each settings change; UI labels use `useTerm()`, server code uses `resolveTerm()`.
+- Custom field values are validated by `validateCustomValues()` (`src/lib/custom-fields/validate.ts`) on the server before any write; field key and type are immutable after creation, and fields are archived, never deleted.
+- Config colors are stored as palette names (`src/lib/config/colors.ts`) and rendered via `--swatch-*` tokens, so themes stay consistent.
+- New projects get default config from the `projects_seed_config` trigger (`seed_project_config()`), not from app code.

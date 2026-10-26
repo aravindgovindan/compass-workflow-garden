@@ -16,7 +16,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import type { CurrentUser } from "@/functions/session.functions";
 import { canAccessSection, type Section } from "@/lib/auth/roles";
-import { DEFAULT_TERMS, type TermKey } from "@/lib/terminology/defaults";
+import type { TermKey } from "@/lib/terminology/defaults";
+import { useTerm } from "@/lib/terminology/use-term";
 import {
   Sidebar,
   SidebarContent,
@@ -70,6 +71,7 @@ export function AppShell({ me, children }: { me: CurrentUser; children: ReactNod
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const term = useTerm();
   const name = me.profile?.full_name || me.profile?.email || "You";
 
   async function signOut() {
@@ -91,10 +93,10 @@ export function AppShell({ me, children }: { me: CurrentUser; children: ReactNod
               const active = pathname === i.to || pathname.startsWith(i.to + "/");
               return (
                 <SidebarMenuItem key={i.to}>
-                  <SidebarMenuButton asChild isActive={active} tooltip={DEFAULT_TERMS[i.term].plural}>
+                  <SidebarMenuButton asChild isActive={active} tooltip={term(i.term)}>
                     <Link to={i.to}>
                       <i.icon aria-hidden />
-                      <span>{DEFAULT_TERMS[i.term].plural}</span>
+                      <span>{term(i.term)}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
