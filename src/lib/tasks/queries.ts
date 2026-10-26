@@ -83,7 +83,7 @@ export function useCreateTask() {
       if (input.parent_task_id) return { lists: undefined };
       const now = new Date().toISOString();
       const temp: TaskListItem = {
-        id: `temp-${crypto.randomUUID()}`, project_id: "", title: input.title, description: null, parent_task_id: null,
+        id: `temp-${crypto.randomUUID()}`, project_id: "", title: input.title, description: null, parent_task_id: null, milestone_id: null,
         phase_id: input.phase_id ?? null, status_id: input.status_id ?? "", priority_id: input.priority_id ?? null,
         assignee_id: null, reporter_id: null, start_date: null, due_date: null, estimate_hours: null,
         position: Number.MAX_SAFE_INTEGER, custom_fields: {}, completed_at: null, created_at: now, updated_at: now,
