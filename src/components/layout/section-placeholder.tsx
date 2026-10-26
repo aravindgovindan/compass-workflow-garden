@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import type { LucideIcon } from "lucide-react";
 import { EmptyState, PageHeader } from "@/components/common/empty-state";
 import type { TermKey } from "@/lib/terminology/defaults";
@@ -7,6 +8,8 @@ import { useTerm } from "@/lib/terminology/use-term";
 export function SectionPlaceholder({ term: key, description, icon }: { term: TermKey; description: string; icon: LucideIcon }) {
   const term = useTerm();
   const title = term(key, "plural");
+  // Browser tab title follows renamed terms (route head() only knows the defaults).
+  useEffect(() => { document.title = `${title} — PlanAProject`; }, [title]);
   return (
     <>
       <PageHeader title={title} description={description} />
