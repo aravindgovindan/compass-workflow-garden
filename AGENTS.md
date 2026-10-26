@@ -36,4 +36,7 @@
 - Mentions use escaped `@[display name](UUID)` tokens and are derived by database triggers, so the comment body and mention rows cannot diverge.
 - Activity APIs are read-only and stakeholder record history is restricted to accessible risks/issues; client audit write privileges and nonread policies are revoked to keep history append-only.
 - Dashboard and milestone summaries use caller-scoped SQL aggregates; dashboard payloads omit task details and project activity for stakeholders, and overdue dates use UTC.
+- Aggregate RPCs are narrowly projected SECURITY DEFINER functions that explicitly verify active membership, because stakeholder RLS denies direct task, checklist, label-link and phase reads.
 - CSV server functions share ordinary server-side filtered-list helpers with list functions, paginate without a UI row cap, and escape every cell including headers against spreadsheet formulas.
+- Demo loading/removal use owner-checked SECURITY INVOKER RPCs, project-row locks and a project-scoped ID manifest; preserve non-demo records and audit history to prevent accidental real-data loss.
+- Shared route states provide router/root error and not-found boundaries and loader pending screens; mutation errors must preserve input and use friendly messages.

@@ -1,11 +1,12 @@
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { deleteView, getViewPrefs, listSavedViews, renameView, saveView, setViewPrefs, type ViewPrefs } from "@/functions/views.functions";
+import { friendlyError } from "@/lib/errors";
 
 export const savedViewsQuery = queryOptions({ queryKey: ["saved-views"], queryFn: () => listSavedViews() });
 export const viewPrefsQuery = queryOptions({ queryKey: ["view-prefs"], queryFn: () => getViewPrefs(), staleTime: Infinity });
 
-const errMsg = (e: unknown) => (e instanceof Error ? e.message : "Something went wrong");
+const errMsg = friendlyError;
 
 export function useSetViewPrefs() {
   const qc = useQueryClient();

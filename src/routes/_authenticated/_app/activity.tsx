@@ -2,9 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ActivityPage } from "@/components/collaboration/activity-page";
 import { activityQuery } from "@/lib/collaboration/queries";
 import { guardSection } from "@/lib/auth/guard";
+import { PageError, PageNotFound, PagePending } from "@/components/common/route-states";
 export const Route = createFileRoute("/_authenticated/_app/activity")({
   beforeLoad: guardSection("activity"),
   loader: ({ context }) => context.queryClient.ensureQueryData(activityQuery({ page: 0 })),
+  pendingComponent: PagePending,
+  errorComponent: PageError,
+  notFoundComponent: PageNotFound,
   head: () => ({
     meta: [
       { title: "Activity — Compass Workflow" },

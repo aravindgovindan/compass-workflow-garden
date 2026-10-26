@@ -3,7 +3,8 @@ import type { CustomFieldDef, CustomFieldEntity, CustomFieldType, CustomValues }
 import { validateCustomValues } from "./validate";
 
 export async function loadDefs(supabase: Db, projectId: string, entity: CustomFieldEntity): Promise<CustomFieldDef[]> {
-  const { data } = await supabase.from("custom_field_defs").select("*").eq("project_id", projectId).eq("entity_type", entity);
+  const { data, error } = await supabase.from("custom_field_defs").select("*").eq("project_id", projectId).eq("entity_type", entity);
+  if (error) throw new Error("Could not load custom fields. Please try again.");
   return (data ?? []).map((d) => ({
     id: d.id, key: d.key, name: d.name, type: d.type as CustomFieldType, required: d.required, archived: d.archived,
     default_value: d.default_value, options: Array.isArray(d.options) ? (d.options as unknown[]).map(String) : [],
