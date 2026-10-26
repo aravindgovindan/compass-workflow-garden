@@ -35,3 +35,5 @@
 - Collaboration UI shares `RecordTabs`, `CommentsThread` and `ActivityFeed`; keep the Details panel mounted when switching tabs to preserve editing state, and validate record access in server functions while comment triggers preserve identity and synchronize mentions.
 - Mentions use escaped `@[display name](UUID)` tokens and are derived by database triggers, so the comment body and mention rows cannot diverge.
 - Activity APIs are read-only and stakeholder record history is restricted to accessible risks/issues; client audit write privileges and nonread policies are revoked to keep history append-only.
+- Dashboard and milestone summaries use caller-scoped SQL aggregates; dashboard payloads omit task details and project activity for stakeholders, and overdue dates use UTC.
+- CSV server functions share ordinary server-side filtered-list helpers with list functions, paginate without a UI row cap, and escape every cell including headers against spreadsheet formulas.
