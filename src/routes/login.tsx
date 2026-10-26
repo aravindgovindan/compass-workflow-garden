@@ -14,10 +14,10 @@ import { Logo } from "@/components/brand/logo";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Sign in — PlanAProject" },
-      { name: "description", content: "Sign in or create your PlanAProject account." },
-      { property: "og:title", content: "Sign in — PlanAProject" },
-      { property: "og:description", content: "Sign in or create your PlanAProject account." },
+      { title: "Sign in — Compass Workflow" },
+      { name: "description", content: "Sign in or create your Compass Workflow account." },
+      { property: "og:title", content: "Sign in — Compass Workflow" },
+      { property: "og:description", content: "Sign in or create your Compass Workflow account." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * PlanAProject design system — "field notebook":
+ * Compass Workflow design system — "field notebook":
  * warm paper surfaces, deep ink text, a forest-teal primary and an amber accent.
  * Health colors (green / amber / red) are first-class tokens.
  * All colors use oklch. Components must use these tokens, never raw colors.

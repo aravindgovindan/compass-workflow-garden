@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_authenticated/_app/settings")({
   beforeLoad: guardSection("settings"),
   head: () => ({
     meta: [
-      { title: "Settings — PlanAProject" },
+      { title: "Settings — Compass Workflow" },
       { name: "description", content: "Workflow, terminology, priorities, labels and custom fields." },
     ],
   }),

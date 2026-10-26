@@ -1,6 +1,6 @@
-# Clear Path
+# Compass Workflow
 
-Build a web app called PlanAProject, step by step.
+Build a web app called Compass Workflow, step by step.
 
 PRODUCT
 A lightweight, configurable project management tool for running ONE project at a time. Unlike Jira, it is opinionated and simple: the owner configures workflow, terminology and custom fields in minutes, then manages tasks, milestones, risks and issues in one place. Target: small teams of 2 to 30 people.
