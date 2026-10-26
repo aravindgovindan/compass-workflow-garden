@@ -271,7 +271,7 @@ function SetupWizard() {
   );
 }
 
-function Field({ label, htmlFor, error, hint, optional, children }: { label: string; htmlFor: string; error?: string; hint?: string; optional?: boolean; children: ReactNode }) {
+function Field({ label, htmlFor, error, hint, optional, children }: { label: string; htmlFor: string; error?: string | undefined; hint?: string; optional?: boolean; children: ReactNode }) {
   return (
     <div className="space-y-1.5">
       <Label htmlFor={htmlFor}>
