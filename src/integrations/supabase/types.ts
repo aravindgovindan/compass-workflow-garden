@@ -155,6 +155,38 @@ export type Database = {
           },
         ]
       }
+      demo_batches: {
+        Row: {
+          created_at: string
+          id: string
+          manifest: Json
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          manifest?: Json
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          manifest?: Json
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_batches_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       issues: {
         Row: {
           category: string | null
@@ -1079,11 +1111,16 @@ export type Database = {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean
       }
+      load_demo_data: {
+        Args: { _payload: Json; _project_id: string }
+        Returns: boolean
+      }
       milestone_summaries: { Args: { _project_id: string }; Returns: Json }
       project_role_of: {
         Args: { _project_id: string; _user_id: string }
         Returns: Database["public"]["Enums"]["project_role"]
       }
+      remove_demo_data: { Args: { _project_id: string }; Returns: boolean }
       revoke_project_invitation: { Args: { _id: string }; Returns: undefined }
       risk_rating_for: {
         Args: { _score: number }

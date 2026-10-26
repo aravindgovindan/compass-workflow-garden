@@ -57,6 +57,13 @@
       "when": 1793040770220,
       "tag": "0007_dashboard_aggregates",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793042492409,
+      "tag": "0008_phase1_hardening_demo",
+      "breakpoints": true
     }
   ]
 }
