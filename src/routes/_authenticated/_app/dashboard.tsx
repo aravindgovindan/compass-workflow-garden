@@ -1,4 +1,4 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, useRouter, type ErrorComponentProps } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { DashboardView } from "@/components/dashboard/dashboard-view";
 import { dashboardQuery } from "@/lib/dashboard/queries";
@@ -23,4 +23,4 @@ function Page() {
   const {data}=useSuspenseQuery(dashboardQuery(me.userId,me.membership?.project.id??'',me.membership?.role??''));
   return <DashboardView data={data} canSeeWork={me.membership?.role==='owner'||me.membership?.role==='member'}/>;
 }
-function DashboardError({error}:{error:Error}){const router=useRouter();return <ErrorState message={error.message} onRetry={()=>router.invalidate()}/>;}
+function DashboardError({error}:ErrorComponentProps){const router=useRouter();return <ErrorState message={error.message} onRetry={()=>router.invalidate()}/>;}
