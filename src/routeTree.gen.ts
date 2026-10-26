@@ -13,14 +13,16 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as AuthenticatedActivityRouteImport } from './routes/_authenticated/activity'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedIssuesRouteImport } from './routes/_authenticated/issues'
-import { Route as AuthenticatedMilestonesRouteImport } from './routes/_authenticated/milestones'
-import { Route as AuthenticatedRisksRouteImport } from './routes/_authenticated/risks'
-import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
-import { Route as AuthenticatedTasksRouteImport } from './routes/_authenticated/tasks'
-import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
+import { Route as AuthenticatedAppRouteRouteImport } from './routes/_authenticated/_app/route'
+import { Route as AuthenticatedSetupRouteImport } from './routes/_authenticated/setup'
+import { Route as AuthenticatedAppActivityRouteImport } from './routes/_authenticated/_app/activity'
+import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/_app/dashboard'
+import { Route as AuthenticatedAppIssuesRouteImport } from './routes/_authenticated/_app/issues'
+import { Route as AuthenticatedAppMilestonesRouteImport } from './routes/_authenticated/_app/milestones'
+import { Route as AuthenticatedAppRisksRouteImport } from './routes/_authenticated/_app/risks'
+import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated/_app/settings'
+import { Route as AuthenticatedAppTasksRouteImport } from './routes/_authenticated/_app/tasks'
+import { Route as AuthenticatedAppTeamRouteImport } from './routes/_authenticated/_app/team'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -41,72 +43,87 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedActivityRoute = AuthenticatedActivityRouteImport.update({
-  id: '/activity',
-  path: '/activity',
+const AuthenticatedAppRouteRoute = AuthenticatedAppRouteRouteImport.update({
+  id: '/_app',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const AuthenticatedSetupRoute = AuthenticatedSetupRouteImport.update({
+  id: '/setup',
+  path: '/setup',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedIssuesRoute = AuthenticatedIssuesRouteImport.update({
+const AuthenticatedAppActivityRoute =
+  AuthenticatedAppActivityRouteImport.update({
+    id: '/activity',
+    path: '/activity',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppDashboardRoute =
+  AuthenticatedAppDashboardRouteImport.update({
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppIssuesRoute = AuthenticatedAppIssuesRouteImport.update({
   id: '/issues',
   path: '/issues',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => AuthenticatedAppRouteRoute,
 } as any)
-const AuthenticatedMilestonesRoute = AuthenticatedMilestonesRouteImport.update({
-  id: '/milestones',
-  path: '/milestones',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedRisksRoute = AuthenticatedRisksRouteImport.update({
+const AuthenticatedAppMilestonesRoute =
+  AuthenticatedAppMilestonesRouteImport.update({
+    id: '/milestones',
+    path: '/milestones',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppRisksRoute = AuthenticatedAppRisksRouteImport.update({
   id: '/risks',
   path: '/risks',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => AuthenticatedAppRouteRoute,
 } as any)
-const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedTasksRoute = AuthenticatedTasksRouteImport.update({
+const AuthenticatedAppSettingsRoute =
+  AuthenticatedAppSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppTasksRoute = AuthenticatedAppTasksRouteImport.update({
   id: '/tasks',
   path: '/tasks',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => AuthenticatedAppRouteRoute,
 } as any)
-const AuthenticatedTeamRoute = AuthenticatedTeamRouteImport.update({
+const AuthenticatedAppTeamRoute = AuthenticatedAppTeamRouteImport.update({
   id: '/team',
   path: '/team',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => AuthenticatedAppRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/activity': typeof AuthenticatedActivityRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
-  '/issues': typeof AuthenticatedIssuesRoute
-  '/milestones': typeof AuthenticatedMilestonesRoute
-  '/risks': typeof AuthenticatedRisksRoute
-  '/settings': typeof AuthenticatedSettingsRoute
-  '/tasks': typeof AuthenticatedTasksRoute
-  '/team': typeof AuthenticatedTeamRoute
+  '/setup': typeof AuthenticatedSetupRoute
+  '/activity': typeof AuthenticatedAppActivityRoute
+  '/dashboard': typeof AuthenticatedAppDashboardRoute
+  '/issues': typeof AuthenticatedAppIssuesRoute
+  '/milestones': typeof AuthenticatedAppMilestonesRoute
+  '/risks': typeof AuthenticatedAppRisksRoute
+  '/settings': typeof AuthenticatedAppSettingsRoute
+  '/tasks': typeof AuthenticatedAppTasksRoute
+  '/team': typeof AuthenticatedAppTeamRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/activity': typeof AuthenticatedActivityRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
-  '/issues': typeof AuthenticatedIssuesRoute
-  '/milestones': typeof AuthenticatedMilestonesRoute
-  '/risks': typeof AuthenticatedRisksRoute
-  '/settings': typeof AuthenticatedSettingsRoute
-  '/tasks': typeof AuthenticatedTasksRoute
-  '/team': typeof AuthenticatedTeamRoute
+  '/setup': typeof AuthenticatedSetupRoute
+  '/activity': typeof AuthenticatedAppActivityRoute
+  '/dashboard': typeof AuthenticatedAppDashboardRoute
+  '/issues': typeof AuthenticatedAppIssuesRoute
+  '/milestones': typeof AuthenticatedAppMilestonesRoute
+  '/risks': typeof AuthenticatedAppRisksRoute
+  '/settings': typeof AuthenticatedAppSettingsRoute
+  '/tasks': typeof AuthenticatedAppTasksRoute
+  '/team': typeof AuthenticatedAppTeamRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -114,14 +131,16 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/_authenticated/activity': typeof AuthenticatedActivityRoute
-  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/issues': typeof AuthenticatedIssuesRoute
-  '/_authenticated/milestones': typeof AuthenticatedMilestonesRoute
-  '/_authenticated/risks': typeof AuthenticatedRisksRoute
-  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
-  '/_authenticated/tasks': typeof AuthenticatedTasksRoute
-  '/_authenticated/team': typeof AuthenticatedTeamRoute
+  '/_authenticated/_app': typeof AuthenticatedAppRouteRouteWithChildren
+  '/_authenticated/setup': typeof AuthenticatedSetupRoute
+  '/_authenticated/_app/activity': typeof AuthenticatedAppActivityRoute
+  '/_authenticated/_app/dashboard': typeof AuthenticatedAppDashboardRoute
+  '/_authenticated/_app/issues': typeof AuthenticatedAppIssuesRoute
+  '/_authenticated/_app/milestones': typeof AuthenticatedAppMilestonesRoute
+  '/_authenticated/_app/risks': typeof AuthenticatedAppRisksRoute
+  '/_authenticated/_app/settings': typeof AuthenticatedAppSettingsRoute
+  '/_authenticated/_app/tasks': typeof AuthenticatedAppTasksRoute
+  '/_authenticated/_app/team': typeof AuthenticatedAppTeamRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -129,6 +148,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/reset-password'
+    | '/setup'
     | '/activity'
     | '/dashboard'
     | '/issues'
@@ -142,6 +162,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/reset-password'
+    | '/setup'
     | '/activity'
     | '/dashboard'
     | '/issues'
@@ -156,14 +177,16 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/login'
     | '/reset-password'
-    | '/_authenticated/activity'
-    | '/_authenticated/dashboard'
-    | '/_authenticated/issues'
-    | '/_authenticated/milestones'
-    | '/_authenticated/risks'
-    | '/_authenticated/settings'
-    | '/_authenticated/tasks'
-    | '/_authenticated/team'
+    | '/_authenticated/_app'
+    | '/_authenticated/setup'
+    | '/_authenticated/_app/activity'
+    | '/_authenticated/_app/dashboard'
+    | '/_authenticated/_app/issues'
+    | '/_authenticated/_app/milestones'
+    | '/_authenticated/_app/risks'
+    | '/_authenticated/_app/settings'
+    | '/_authenticated/_app/tasks'
+    | '/_authenticated/_app/team'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -203,85 +226,114 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/activity': {
-      id: '/_authenticated/activity'
+    '/_authenticated/_app': {
+      id: '/_authenticated/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedAppRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/setup': {
+      id: '/_authenticated/setup'
+      path: '/setup'
+      fullPath: '/setup'
+      preLoaderRoute: typeof AuthenticatedSetupRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/_app/activity': {
+      id: '/_authenticated/_app/activity'
       path: '/activity'
       fullPath: '/activity'
-      preLoaderRoute: typeof AuthenticatedActivityRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof AuthenticatedAppActivityRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
+    '/_authenticated/_app/dashboard': {
+      id: '/_authenticated/_app/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof AuthenticatedAppDashboardRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/issues': {
-      id: '/_authenticated/issues'
+    '/_authenticated/_app/issues': {
+      id: '/_authenticated/_app/issues'
       path: '/issues'
       fullPath: '/issues'
-      preLoaderRoute: typeof AuthenticatedIssuesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof AuthenticatedAppIssuesRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/milestones': {
-      id: '/_authenticated/milestones'
+    '/_authenticated/_app/milestones': {
+      id: '/_authenticated/_app/milestones'
       path: '/milestones'
       fullPath: '/milestones'
-      preLoaderRoute: typeof AuthenticatedMilestonesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof AuthenticatedAppMilestonesRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/risks': {
-      id: '/_authenticated/risks'
+    '/_authenticated/_app/risks': {
+      id: '/_authenticated/_app/risks'
       path: '/risks'
       fullPath: '/risks'
-      preLoaderRoute: typeof AuthenticatedRisksRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof AuthenticatedAppRisksRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/settings': {
-      id: '/_authenticated/settings'
+    '/_authenticated/_app/settings': {
+      id: '/_authenticated/_app/settings'
       path: '/settings'
       fullPath: '/settings'
-      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/tasks': {
-      id: '/_authenticated/tasks'
+    '/_authenticated/_app/tasks': {
+      id: '/_authenticated/_app/tasks'
       path: '/tasks'
       fullPath: '/tasks'
-      preLoaderRoute: typeof AuthenticatedTasksRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof AuthenticatedAppTasksRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
-    '/_authenticated/team': {
-      id: '/_authenticated/team'
+    '/_authenticated/_app/team': {
+      id: '/_authenticated/_app/team'
       path: '/team'
       fullPath: '/team'
-      preLoaderRoute: typeof AuthenticatedTeamRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof AuthenticatedAppTeamRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
     }
   }
 }
 
+interface AuthenticatedAppRouteRouteChildren {
+  AuthenticatedAppActivityRoute: typeof AuthenticatedAppActivityRoute
+  AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
+  AuthenticatedAppIssuesRoute: typeof AuthenticatedAppIssuesRoute
+  AuthenticatedAppMilestonesRoute: typeof AuthenticatedAppMilestonesRoute
+  AuthenticatedAppRisksRoute: typeof AuthenticatedAppRisksRoute
+  AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRoute
+  AuthenticatedAppTasksRoute: typeof AuthenticatedAppTasksRoute
+  AuthenticatedAppTeamRoute: typeof AuthenticatedAppTeamRoute
+}
+
+const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
+  AuthenticatedAppActivityRoute: AuthenticatedAppActivityRoute,
+  AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
+  AuthenticatedAppIssuesRoute: AuthenticatedAppIssuesRoute,
+  AuthenticatedAppMilestonesRoute: AuthenticatedAppMilestonesRoute,
+  AuthenticatedAppRisksRoute: AuthenticatedAppRisksRoute,
+  AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRoute,
+  AuthenticatedAppTasksRoute: AuthenticatedAppTasksRoute,
+  AuthenticatedAppTeamRoute: AuthenticatedAppTeamRoute,
+}
+
+const AuthenticatedAppRouteRouteWithChildren =
+  AuthenticatedAppRouteRoute._addFileChildren(
+    AuthenticatedAppRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedActivityRoute: typeof AuthenticatedActivityRoute
-  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedIssuesRoute: typeof AuthenticatedIssuesRoute
-  AuthenticatedMilestonesRoute: typeof AuthenticatedMilestonesRoute
-  AuthenticatedRisksRoute: typeof AuthenticatedRisksRoute
-  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
-  AuthenticatedTasksRoute: typeof AuthenticatedTasksRoute
-  AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
+  AuthenticatedAppRouteRoute: typeof AuthenticatedAppRouteRouteWithChildren
+  AuthenticatedSetupRoute: typeof AuthenticatedSetupRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedActivityRoute: AuthenticatedActivityRoute,
-  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedIssuesRoute: AuthenticatedIssuesRoute,
-  AuthenticatedMilestonesRoute: AuthenticatedMilestonesRoute,
-  AuthenticatedRisksRoute: AuthenticatedRisksRoute,
-  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
-  AuthenticatedTasksRoute: AuthenticatedTasksRoute,
-  AuthenticatedTeamRoute: AuthenticatedTeamRoute,
+  AuthenticatedAppRouteRoute: AuthenticatedAppRouteRouteWithChildren,
+  AuthenticatedSetupRoute: AuthenticatedSetupRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
