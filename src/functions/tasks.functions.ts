@@ -41,43 +41,83 @@ async function nextPosition(supabase: Db, projectId: string, statusId: string): 
   return (data?.position ?? -1) + 1;
 }
 
+const CHUNK = 1000; // PostgREST row cap per request
+
+/** Fetch all rows of a query in 1,000-row pages (up to `max`). */
+async function fetchAll<T>(page: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: unknown; count?: number | null }>, max: number) {
+  const out: T[] = [];
+  let total = 0;
+  for (let from = 0; from < max; from += CHUNK) {
+    const r = await page(from, Math.min(from + CHUNK, max) - 1);
+    if (r.error) fail("load the list", r.error as never);
+    if (from === 0) total = r.count ?? 0;
+    out.push(...(r.data ?? []));
+    if ((r.data ?? []).length < CHUNK) break;
+  }
+  return { rows: out, total: Math.max(total, out.length) };
+}
+
 export const listTasks = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => taskList.parse(i ?? {}))
   .handler(async ({ data, context }): Promise<{ rows: TaskListItem[]; total: number }> => {
     const { supabase, userId } = context;
     const projectId = await requireTaskReader(supabase, userId);
-    let q = supabase.from("tasks").select("*, task_labels(label_id)", { count: "exact" }).eq("project_id", projectId);
-    if (data.topLevelOnly) q = q.is("parent_task_id", null);
-    if (data.search) q = q.ilike("title", `%${data.search.replace(/[%_\\]/g, "\\$&")}%`);
-    if (data.statusIds?.length) q = q.in("status_id", data.statusIds);
-    if (data.priorityIds?.length) q = q.in("priority_id", data.priorityIds);
-    if (data.assigneeIds?.length) q = q.in("assignee_id", data.assigneeIds);
-    if (data.phaseIds?.length) q = q.in("phase_id", data.phaseIds);
-    const from = (data.page - 1) * data.pageSize;
-    const { data: rows, count, error } = await q
-      .order(data.sort, { ascending: data.dir === "asc", nullsFirst: false })
-      .order("created_at")
-      .range(from, from + data.pageSize - 1);
-    if (error) fail("load the list", error);
-    const ids = (rows ?? []).map((r) => r.id);
-    const [subs, checks] = ids.length
+    const defs = Object.keys(data.cf).length ? await taskDefs(supabase, projectId) : [];
+    const build = () => {
+      let q = supabase.from("tasks").select("*, task_labels(label_id)", { count: "exact" }).eq("project_id", projectId);
+      if (data.topLevelOnly) q = q.is("parent_task_id", null);
+      if (data.search) {
+        const s = data.search.replace(/[%_\\,()*"]/g, " ").trim();
+        if (s) q = q.or(`title.ilike.*${s}*,description.ilike.*${s}*`);
+      }
+      if (data.statusIds?.length) q = q.in("status_id", data.statusIds);
+      if (data.priorityIds?.length) q = q.in("priority_id", data.priorityIds);
+      if (data.phaseIds?.length) q = q.in("phase_id", data.phaseIds);
+      if (data.assigneeIds?.length) {
+        const real = data.assigneeIds.filter((a) => a !== "none");
+        const none = real.length !== data.assigneeIds.length;
+        if (none && real.length) q = q.or(`assignee_id.is.null,assignee_id.in.(${real.join(",")})`);
+        else if (none) q = q.is("assignee_id", null);
+        else q = q.in("assignee_id", real);
+      }
+      if (data.dueFrom) q = q.gte("due_date", data.dueFrom);
+      if (data.dueTo) q = q.lte("due_date", data.dueTo);
+      if (data.overdue) q = q.lt("due_date", new Date().toISOString().slice(0, 10)).is("completed_at", null);
+      for (const [key, value] of Object.entries(data.cf)) {
+        const def = defs.find((d) => d.key === key);
+        if (!def) continue;
+        if (def.type === "multi_select") q = q.contains("custom_fields", { [key]: [value] });
+        else if (def.type === "text" || def.type === "long_text" || def.type === "url") q = q.ilike(`custom_fields->>${key}`, `%${value.replace(/[%_\\]/g, "\\$&")}%`);
+        else if (def.type === "checkbox" && value === "false") q = q.or(`custom_fields->>${key}.is.null,custom_fields->>${key}.eq.false`);
+        else q = q.eq(`custom_fields->>${key}`, value);
+      }
+      return q.order(data.sort, { ascending: data.dir === "asc", nullsFirst: false }).order("id");
+    };
+    const { rows: raw, total } = await fetchAll((from, to) => build().range(from, to), data.pageSize);
+    let rows = raw;
+    if (data.labelIds?.length) {
+      const want = new Set(data.labelIds);
+      rows = rows.filter((r) => (r.task_labels ?? []).some((l) => want.has(l.label_id)));
+    }
+    // Counts are fetched project-wide (two small queries) instead of with huge id lists.
+    const [subs, checks] = rows.length
       ? await Promise.all([
-          supabase.from("tasks").select("parent_task_id").in("parent_task_id", ids),
-          supabase.from("task_checklist_items").select("task_id, done").in("task_id", ids),
+          fetchAll((f, t) => supabase.from("tasks").select("parent_task_id").eq("project_id", projectId).not("parent_task_id", "is", null).range(f, t), 20000),
+          fetchAll((f, t) => supabase.from("task_checklist_items").select("task_id, done").eq("project_id", projectId).range(f, t), 50000),
         ])
-      : [{ data: [] }, { data: [] }];
+      : [{ rows: [] as { parent_task_id: string | null }[] }, { rows: [] as { task_id: string; done: boolean }[] }];
     const subCount = new Map<string, number>();
-    for (const s of subs.data ?? []) if (s.parent_task_id) subCount.set(s.parent_task_id, (subCount.get(s.parent_task_id) ?? 0) + 1);
+    for (const s of subs.rows) if (s.parent_task_id) subCount.set(s.parent_task_id, (subCount.get(s.parent_task_id) ?? 0) + 1);
     const chk = new Map<string, { t: number; d: number }>();
-    for (const c of checks.data ?? []) {
+    for (const c of checks.rows) {
       const e = chk.get(c.task_id) ?? { t: 0, d: 0 };
       e.t++; if (c.done) e.d++;
       chk.set(c.task_id, e);
     }
     return {
-      total: count ?? 0,
-      rows: (rows ?? []).map(({ task_labels, ...r }) => ({
+      total: data.labelIds?.length ? rows.length : total,
+      rows: rows.map(({ task_labels, ...r }) => ({
         ...r,
         label_ids: (task_labels ?? []).map((l) => l.label_id),
         subtask_count: subCount.get(r.id) ?? 0,
