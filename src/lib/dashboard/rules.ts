@@ -4,7 +4,7 @@ import type { ProjectRole } from "@/lib/auth/roles";
 export function privateDashboardData<T extends { overdue?: unknown; activity?: unknown }>(
   data: T,
   role: ProjectRole,
-) {
+): Omit<T,'overdue'|'activity'> & {overdue?:T['overdue'];activity?:T['activity']} {
   const { overdue, activity, ...safe } = data;
   return role === "stakeholder" ? safe : { ...safe, overdue, activity };
 }
