@@ -1,7 +1,7 @@
-# PlanAProject — Phase 1 Blueprint
+# Compass Workflow — Phase 1 Blueprint
 
 ## (a) Understanding
-1. PlanAProject is a simple, opinionated project tool for one project at a time, built for teams of 2 to 30 people.
+1. Compass Workflow is a simple, opinionated project tool for one project at a time, built for teams of 2 to 30 people.
 2. Three roles: Owner configures everything, Member creates and updates work, Stakeholder gets read-only access to the dashboard, milestones, risks and issues.
 3. All labels, statuses, priorities, terminology and custom fields come from the database. Nothing is hard-coded.
 4. Core work items: phases, tasks, sub-tasks and checklists, plus milestones, risks and issues, each with comments, @mentions and an activity log.

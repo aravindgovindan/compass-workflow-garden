@@ -10,10 +10,10 @@ import { Logo } from "@/components/brand/logo";
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
-      { title: "Set a new password — PlanAProject" },
-      { name: "description", content: "Choose a new password for your PlanAProject account." },
-      { property: "og:title", content: "Set a new password — PlanAProject" },
-      { property: "og:description", content: "Choose a new password for your PlanAProject account." },
+      { title: "Set a new password — Compass Workflow" },
+      { name: "description", content: "Choose a new password for your Compass Workflow account." },
+      { property: "og:title", content: "Set a new password — Compass Workflow" },
+      { property: "og:description", content: "Choose a new password for your Compass Workflow account." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

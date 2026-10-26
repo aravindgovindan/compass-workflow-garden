@@ -5,7 +5,7 @@ import { guardSection } from "@/lib/auth/guard";
 
 export const Route = createFileRoute("/_authenticated/_app/risks")({
   beforeLoad: guardSection("risks"),
-  head: () => ({ meta: [{ title: "Risks — PlanAProject" }, { name: "description", content: "What could go wrong, and the plan for it." }] }),
+  head: () => ({ meta: [{ title: "Risks — Compass Workflow" }, { name: "description", content: "What could go wrong, and the plan for it." }] }),
   component: Page,
 });
 

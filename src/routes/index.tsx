@@ -8,12 +8,12 @@ import { Logo } from "@/components/brand/logo";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "PlanAProject — run one project, simply" },
+      { title: "Compass Workflow — run one project, simply" },
       {
         name: "description",
         content: "Set up your workflow, tasks, milestones, risks and issues in minutes. Built for teams of 2 to 30.",
       },
-      { property: "og:title", content: "PlanAProject — run one project, simply" },
+      { property: "og:title", content: "Compass Workflow — run one project, simply" },
       {
         property: "og:description",
         content: "Set up your workflow, tasks, milestones, risks and issues in minutes. Built for teams of 2 to 30.",
@@ -51,7 +51,7 @@ function Landing() {
           Project management without the Jira-sized learning curve.
         </h1>
         <p className="mt-6 max-w-xl text-lg text-muted-foreground">
-          Configure PlanAProject in minutes, then run your project with a team of 2 to 30 people.
+          Configure Compass Workflow in minutes, then run your project with a team of 2 to 30 people.
         </p>
         <ul className="mt-8 space-y-3">
           {points.map((p) => (

@@ -112,7 +112,7 @@ export function AppShell({ me, children }: { me: CurrentUser; children: ReactNod
     <SidebarProvider>
       <Sidebar collapsible="icon">
         <SidebarHeader className="px-3 py-4">
-          <Link to="/dashboard" aria-label="PlanAProject home" className="group-data-[collapsible=icon]:hidden">
+          <Link to="/dashboard" aria-label="Compass Workflow home" className="group-data-[collapsible=icon]:hidden">
             <Logo inverted />
           </Link>
         </SidebarHeader>

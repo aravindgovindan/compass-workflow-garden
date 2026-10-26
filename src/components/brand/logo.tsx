@@ -12,7 +12,7 @@ export function Logo({ className, inverted }: { className?: string; inverted?: b
       >
         A
       </span>
-      PlanAProject
+      Compass Workflow
     </span>
   );
 }

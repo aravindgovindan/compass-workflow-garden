@@ -29,14 +29,14 @@ export const Route = createFileRoute("/_authenticated/_app/tasks")({
   beforeLoad: guardSection("tasks"),
   validateSearch: (s: Record<string, unknown>) => parseTaskSearch(s),
   search: { middlewares: [stripSearchParams(DEFAULTS as never)] },
-  head: () => ({ meta: [{ title: "Tasks — PlanAProject" }, { name: "description", content: "Plan and track the work in a list or on a board." }] }),
+  head: () => ({ meta: [{ title: "Tasks — Compass Workflow" }, { name: "description", content: "Plan and track the work in a list or on a board." }] }),
   component: Page,
 });
 
 function Page() {
   const term = useTerm();
   const title = term("task");
-  useEffect(() => { document.title = `${title} — PlanAProject`; }, [title]);
+  useEffect(() => { document.title = `${title} — Compass Workflow`; }, [title]);
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const filters = useMemo(() => toFilters(search), [search]);

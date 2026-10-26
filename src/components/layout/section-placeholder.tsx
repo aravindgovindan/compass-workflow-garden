@@ -9,7 +9,7 @@ export function SectionPlaceholder({ term: key, description, icon }: { term: Ter
   const term = useTerm();
   const title = term(key, "plural");
   // Browser tab title follows renamed terms (route head() only knows the defaults).
-  useEffect(() => { document.title = `${title} — PlanAProject`; }, [title]);
+  useEffect(() => { document.title = `${title} — Compass Workflow`; }, [title]);
   return (
     <>
       <PageHeader title={title} description={description} />

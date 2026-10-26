@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/setup")({
   },
   head: () => ({
     meta: [
-      { title: "Set up your project — PlanAProject" },
+      { title: "Set up your project — Compass Workflow" },
       { name: "description", content: "Create your project profile in a few quick steps." },
     ],
   }),
