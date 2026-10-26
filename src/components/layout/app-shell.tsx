@@ -16,7 +16,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import type { CurrentUser } from "@/functions/session.functions";
 import { canAccessSection, type Section } from "@/lib/auth/roles";
-import { DEFAULT_TERMS } from "@/lib/terminology/defaults";
+import { DEFAULT_TERMS, type TermKey } from "@/lib/terminology/defaults";
 import {
   Sidebar,
   SidebarContent,
@@ -44,19 +44,19 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/brand/logo";
 import { HealthBadge } from "@/components/common/health-badge";
 
-type NavItem = { section: Section; to: string; icon: LucideIcon };
+type NavItem = { section: Section; term: TermKey; to: string; icon: LucideIcon };
 
 const work: NavItem[] = [
-  { section: "dashboard", to: "/dashboard", icon: LayoutDashboard },
-  { section: "tasks", to: "/tasks", icon: ListTodo },
-  { section: "milestones", to: "/milestones", icon: Flag },
-  { section: "risks", to: "/risks", icon: ShieldAlert },
-  { section: "issues", to: "/issues", icon: AlertTriangle },
+  { section: "dashboard", term: "dashboard", to: "/dashboard", icon: LayoutDashboard },
+  { section: "tasks", term: "task", to: "/tasks", icon: ListTodo },
+  { section: "milestones", term: "milestone", to: "/milestones", icon: Flag },
+  { section: "risks", term: "risk", to: "/risks", icon: ShieldAlert },
+  { section: "issues", term: "issue", to: "/issues", icon: AlertTriangle },
 ];
 const people: NavItem[] = [
-  { section: "team", to: "/team", icon: Users },
-  { section: "activity", to: "/activity", icon: Activity },
-  { section: "settings", to: "/settings", icon: Settings },
+  { section: "team", term: "team", to: "/team", icon: Users },
+  { section: "activity", term: "activity", to: "/activity", icon: Activity },
+  { section: "settings", term: "settings", to: "/settings", icon: Settings },
 ];
 
 const roleLabel = { owner: "Owner", member: "Member", stakeholder: "Stakeholder" } as const;
@@ -91,10 +91,10 @@ export function AppShell({ me, children }: { me: CurrentUser; children: ReactNod
               const active = pathname === i.to || pathname.startsWith(i.to + "/");
               return (
                 <SidebarMenuItem key={i.to}>
-                  <SidebarMenuButton asChild isActive={active} tooltip={DEFAULT_TERMS[i.section].plural}>
+                  <SidebarMenuButton asChild isActive={active} tooltip={DEFAULT_TERMS[i.term].plural}>
                     <Link to={i.to}>
                       <i.icon aria-hidden />
-                      <span>{DEFAULT_TERMS[i.section].plural}</span>
+                      <span>{DEFAULT_TERMS[i.term].plural}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

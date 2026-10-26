@@ -52,7 +52,7 @@ function LoginPage() {
     e.preventDefault();
     setError(null);
     const parsed = signInSchema.safeParse(Object.fromEntries(new FormData(e.currentTarget)));
-    if (!parsed.success) return setError(parsed.error.issues[0].message);
+    if (!parsed.success) return setError(parsed.error.issues[0]?.message ?? "Check your details");
     setBusy(true);
     const { error } = await supabase.auth.signInWithPassword(parsed.data);
     setBusy(false);
@@ -64,7 +64,7 @@ function LoginPage() {
     e.preventDefault();
     setError(null);
     const parsed = signUpSchema.safeParse(Object.fromEntries(new FormData(e.currentTarget)));
-    if (!parsed.success) return setError(parsed.error.issues[0].message);
+    if (!parsed.success) return setError(parsed.error.issues[0]?.message ?? "Check your details");
     setBusy(true);
     const { data, error } = await supabase.auth.signUp({
       email: parsed.data.email,
