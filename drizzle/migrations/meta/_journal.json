@@ -64,6 +64,13 @@
       "when": 1793042492409,
       "tag": "0008_phase1_hardening_demo",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793042835469,
+      "tag": "0009_fix_checklist_integrity",
+      "breakpoints": true
     }
   ]
 }
