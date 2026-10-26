@@ -111,6 +111,75 @@ export type Database = {
           },
         ]
       }
+      issues: {
+        Row: {
+          category: string | null
+          created_at: string
+          custom_fields: Json
+          description: string | null
+          id: string
+          owner_id: string | null
+          project_id: string
+          raised_by: string | null
+          resolution: string | null
+          severity: Database["public"]["Enums"]["issue_severity"]
+          source_risk_id: string | null
+          status: Database["public"]["Enums"]["issue_status"]
+          target_date: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          custom_fields?: Json
+          description?: string | null
+          id?: string
+          owner_id?: string | null
+          project_id: string
+          raised_by?: string | null
+          resolution?: string | null
+          severity?: Database["public"]["Enums"]["issue_severity"]
+          source_risk_id?: string | null
+          status?: Database["public"]["Enums"]["issue_status"]
+          target_date?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          custom_fields?: Json
+          description?: string | null
+          id?: string
+          owner_id?: string | null
+          project_id?: string
+          raised_by?: string | null
+          resolution?: string | null
+          severity?: Database["public"]["Enums"]["issue_severity"]
+          source_risk_id?: string | null
+          status?: Database["public"]["Enums"]["issue_status"]
+          target_date?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "issues_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "issues_source_risk_id_fkey"
+            columns: ["source_risk_id"]
+            isOneToOne: false
+            referencedRelation: "risks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       labels: {
         Row: {
           color: string
@@ -387,6 +456,74 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      risks: {
+        Row: {
+          category: string | null
+          created_at: string
+          created_by: string | null
+          custom_fields: Json
+          description: string | null
+          id: string
+          impact: number
+          mitigation_plan: string | null
+          owner_id: string | null
+          probability: number
+          project_id: string
+          rating: Database["public"]["Enums"]["risk_rating"] | null
+          review_date: string | null
+          score: number | null
+          status: Database["public"]["Enums"]["risk_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          custom_fields?: Json
+          description?: string | null
+          id?: string
+          impact?: number
+          mitigation_plan?: string | null
+          owner_id?: string | null
+          probability?: number
+          project_id: string
+          rating?: Database["public"]["Enums"]["risk_rating"] | null
+          review_date?: string | null
+          score?: number | null
+          status?: Database["public"]["Enums"]["risk_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          custom_fields?: Json
+          description?: string | null
+          id?: string
+          impact?: number
+          mitigation_plan?: string | null
+          owner_id?: string | null
+          probability?: number
+          project_id?: string
+          rating?: Database["public"]["Enums"]["risk_rating"] | null
+          review_date?: string | null
+          score?: number | null
+          status?: Database["public"]["Enums"]["risk_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "risks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       saved_views: {
         Row: {
@@ -760,6 +897,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      convert_risk_to_issue: {
+        Args: {
+          _risk_id: string
+          _severity: Database["public"]["Enums"]["issue_severity"]
+        }
+        Returns: string
+      }
       has_project_role: {
         Args: {
           _project_id: string
@@ -775,6 +919,10 @@ export type Database = {
       project_role_of: {
         Args: { _project_id: string; _user_id: string }
         Returns: Database["public"]["Enums"]["project_role"]
+      }
+      risk_rating_for: {
+        Args: { _score: number }
+        Returns: Database["public"]["Enums"]["risk_rating"]
       }
       seed_project_config: { Args: { _project_id: string }; Returns: undefined }
       shares_project_with: {
@@ -794,9 +942,13 @@ export type Database = {
         | "user"
         | "checkbox"
         | "url"
+      issue_severity: "low" | "medium" | "high" | "critical"
+      issue_status: "open" | "in_progress" | "resolved" | "closed"
       milestone_status: "upcoming" | "at_risk" | "achieved" | "missed"
       project_health: "green" | "amber" | "red"
       project_role: "owner" | "member" | "stakeholder"
+      risk_rating: "low" | "medium" | "high" | "critical"
+      risk_status: "open" | "mitigating" | "closed" | "occurred"
       status_category: "todo" | "in_progress" | "done"
     }
     CompositeTypes: {
@@ -937,9 +1089,13 @@ export const Constants = {
         "checkbox",
         "url",
       ],
+      issue_severity: ["low", "medium", "high", "critical"],
+      issue_status: ["open", "in_progress", "resolved", "closed"],
       milestone_status: ["upcoming", "at_risk", "achieved", "missed"],
       project_health: ["green", "amber", "red"],
       project_role: ["owner", "member", "stakeholder"],
+      risk_rating: ["low", "medium", "high", "critical"],
+      risk_status: ["open", "mitigating", "closed", "occurred"],
       status_category: ["todo", "in_progress", "done"],
     },
   },

@@ -27,3 +27,5 @@
 - Per-user view settings (List/Board, list columns) live in `user_view_prefs`; saved views in `saved_views`; both are owner-only via RLS and `user_id` filters.
 - The task list loads all matching top-level tasks in 1,000-row pages and virtualizes rendering; board columns render 50 cards at a time. Board drops compute positions with `dropPosition()` (`src/lib/tasks/board.ts`).
 - Milestone percent complete and status are computed (never stored) by `milestoneProgress()` / `milestoneStatus()` in `src/lib/milestones/status.ts`; only owners may set `status_override` (checked server-side and by the `milestones_integrity()` trigger).
+- Risk score/rating bands live in `riskScore()` / `ratingFor()` (`src/lib/risks/score.ts`), mirrored by the generated `score`/`rating` columns via `risk_rating_for()`; risk→issue conversion runs atomically in the `convert_risk_to_issue()` DB function.
+- /risks and /issues keep filters, sort, heatmap cell and open item in URL search params (`riskSearch` / `issueSearch` in `src/lib/schemas/registers.ts`); custom values for any entity go through `checkCustomValues()` (`src/lib/custom-fields/defs.server.ts`).
