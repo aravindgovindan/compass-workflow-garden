@@ -50,6 +50,13 @@
       "when": 1793038328250,
       "tag": "0006_team_collaboration",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793040770220,
+      "tag": "0007_dashboard_aggregates",
+      "breakpoints": true
     }
   ]
 }

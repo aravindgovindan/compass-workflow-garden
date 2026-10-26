@@ -1058,6 +1058,7 @@ export type Database = {
         }
         Returns: string
       }
+      dashboard_snapshot: { Args: { _project_id: string }; Returns: Json }
       has_project_role: {
         Args: {
           _project_id: string
@@ -1078,6 +1079,7 @@ export type Database = {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean
       }
+      milestone_summaries: { Args: { _project_id: string }; Returns: Json }
       project_role_of: {
         Args: { _project_id: string; _user_id: string }
         Returns: Database["public"]["Enums"]["project_role"]
