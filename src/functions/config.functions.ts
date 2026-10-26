@@ -59,9 +59,10 @@ function fail(what: string, error: { code?: string; message?: string } | null): 
   throw new Error(`Could not ${what}. Please try again.`);
 }
 
-/** Records that reference a status. Tasks, risks and issues arrive in later steps. */
-async function countStatusUsage(_supabase: Db, _statusId: string): Promise<number> {
-  return 0;
+/** Records that reference a status. Risks and issues arrive in later steps. */
+async function countStatusUsage(supabase: Db, statusId: string): Promise<number> {
+  const { count } = await supabase.from("tasks").select("id", { count: "exact", head: true }).eq("status_id", statusId);
+  return count ?? 0;
 }
 
 export type ProjectConfig = {
@@ -160,7 +161,11 @@ export const deleteStatus = createServerFn({ method: "POST" })
     const usage = await countStatusUsage(supabase, data.id);
     const problem = checkStatusDeletion(statuses ?? [], data.id, usage, data.replacementId);
     if (problem) throw new Error(problem);
-    // Step 4+: move records from data.id to data.replacementId here before deleting.
+    if (usage > 0 && data.replacementId) {
+      const { error: e2 } = await supabase.from("tasks").update({ status_id: data.replacementId })
+        .eq("status_id", data.id).eq("project_id", projectId);
+      if (e2) fail("move items to the replacement status", e2);
+    }
     const nextDefault = nextDefaultStatus(statuses ?? [], data.id);
     const { error } = await supabase.from("workflow_statuses").delete().eq("id", data.id).eq("project_id", projectId);
     if (error) fail("delete the status", error);
