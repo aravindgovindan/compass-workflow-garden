@@ -10,5 +10,5 @@ export const Route = createFileRoute("/_authenticated/_app/activity")({
 });
 
 function Page() {
-  return <SectionPlaceholder title="Activity" description="Every change, in order." icon={Activity} />;
+  return <SectionPlaceholder term="activity" description="Every change, in order." icon={Activity} />;
 }

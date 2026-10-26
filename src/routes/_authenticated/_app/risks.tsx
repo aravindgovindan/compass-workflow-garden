@@ -10,5 +10,5 @@ export const Route = createFileRoute("/_authenticated/_app/risks")({
 });
 
 function Page() {
-  return <SectionPlaceholder title="Risks" description="What could go wrong, and the plan for it." icon={ShieldAlert} />;
+  return <SectionPlaceholder term="risk" description="What could go wrong, and the plan for it." icon={ShieldAlert} />;
 }

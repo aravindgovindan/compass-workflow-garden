@@ -10,5 +10,5 @@ export const Route = createFileRoute("/_authenticated/_app/milestones")({
 });
 
 function Page() {
-  return <SectionPlaceholder title="Milestones" description="Key dates and how close you are." icon={Flag} />;
+  return <SectionPlaceholder term="milestone" description="Key dates and how close you are." icon={Flag} />;
 }
