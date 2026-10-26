@@ -3,7 +3,7 @@ import { Activity } from "lucide-react";
 import { SectionPlaceholder } from "@/components/layout/section-placeholder";
 import { guardSection } from "@/lib/auth/guard";
 
-export const Route = createFileRoute("/_authenticated/activity")({
+export const Route = createFileRoute("/_authenticated/_app/activity")({
   beforeLoad: guardSection("activity"),
   head: () => ({ meta: [{ title: "Activity — PlanAProject" }, { name: "description", content: "Every change, in order." }] }),
   component: Page,
