@@ -19,7 +19,18 @@ export const createProject = createServerFn({ method: "POST" })
 
     const { data: project, error } = await supabase
       .from("projects")
-      .insert({ ...data, created_by: userId })
+      .insert({
+        name: data.name,
+        code: data.code,
+        description: data.description ?? null,
+        objectives: data.objectives ?? null,
+        sponsor: data.sponsor ?? null,
+        start_date: data.start_date ?? null,
+        target_end_date: data.target_end_date ?? null,
+        status: data.status,
+        health: data.health,
+        created_by: userId,
+      })
       .select("id, name, code")
       .single();
     if (error || !project) {
