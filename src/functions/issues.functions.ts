@@ -21,10 +21,21 @@ export const listIssues = createServerFn({ method: "GET" })
   .handler(async ({ data: f, context }): Promise<IssueList> => {
     const { supabase, userId } = context;
     const { projectId } = await projectAccess(supabase, userId);
-    const q = issueRows(supabase,projectId,f,1000);
-    const [rows, cats] = await Promise.all([q, supabase.from("issues").select("category").eq("project_id", projectId).not("category", "is", null).limit(5000)]);
-    
-    return { rows: rows.rows, categories: [...new Set((cats.data ?? []).map((r) => r.category!))].sort() };
+    const q = issueRows(supabase, projectId, f, 1000);
+    const [rows, cats] = await Promise.all([
+      q,
+      supabase
+        .from("issues")
+        .select("category")
+        .eq("project_id", projectId)
+        .not("category", "is", null)
+        .limit(5000),
+    ]);
+
+    return {
+      rows: rows.rows,
+      categories: [...new Set((cats.data ?? []).map((r) => r.category!))].sort(),
+    };
   });
 
 export const getIssue = createServerFn({ method: "GET" })
@@ -33,12 +44,21 @@ export const getIssue = createServerFn({ method: "GET" })
   .handler(async ({ data, context }): Promise<IssueDetail> => {
     const { supabase, userId } = context;
     const { projectId } = await projectAccess(supabase, userId);
-    const { data: row, error } = await supabase.from("issues").select("*").eq("id", data.id).eq("project_id", projectId).maybeSingle();
+    const { data: row, error } = await supabase
+      .from("issues")
+      .select("*")
+      .eq("id", data.id)
+      .eq("project_id", projectId)
+      .maybeSingle();
     if (error) fail("load the issue", error);
     if (!row) throw new Error("That item no longer exists.");
     let source_risk: IssueDetail["source_risk"] = null;
     if (row.source_risk_id) {
-      const { data: r } = await supabase.from("risks").select("id, title").eq("id", row.source_risk_id).maybeSingle();
+      const { data: r } = await supabase
+        .from("risks")
+        .select("id, title")
+        .eq("id", row.source_risk_id)
+        .maybeSingle();
       source_risk = r ?? null;
     }
     return { ...row, source_risk };
@@ -52,9 +72,25 @@ export const createIssue = createServerFn({ method: "POST" })
     const { projectId, role } = await projectAccess(supabase, userId);
     assertCanWriteRegister(role);
     const { custom_fields, ...rest } = data;
-    const cf = await checkCustomValues(supabase, projectId, "issue", {}, custom_fields ?? {}, "create");
-    const { data: row, error } = await supabase.from("issues")
-      .insert({ raised_by: userId, ...clean(rest), title: data.title, project_id: projectId, custom_fields: cf as Json }).select("id").single();
+    const cf = await checkCustomValues(
+      supabase,
+      projectId,
+      "issue",
+      {},
+      custom_fields ?? {},
+      "create",
+    );
+    const { data: row, error } = await supabase
+      .from("issues")
+      .insert({
+        raised_by: userId,
+        ...clean(rest),
+        title: data.title,
+        project_id: projectId,
+        custom_fields: cf as Json,
+      })
+      .select("id")
+      .single();
     if (error || !row) fail("add the issue", error);
     return row;
   });
@@ -69,11 +105,27 @@ export const updateIssue = createServerFn({ method: "POST" })
     const { id, custom_fields, ...rest } = data;
     const patch: Database["public"]["Tables"]["issues"]["Update"] = clean(rest);
     if (custom_fields) {
-      const { data: cur } = await supabase.from("issues").select("custom_fields").eq("id", id).eq("project_id", projectId).maybeSingle();
+      const { data: cur } = await supabase
+        .from("issues")
+        .select("custom_fields")
+        .eq("id", id)
+        .eq("project_id", projectId)
+        .maybeSingle();
       if (!cur) throw new Error("That item no longer exists.");
-      patch.custom_fields = (await checkCustomValues(supabase, projectId, "issue", (cur.custom_fields ?? {}) as CustomValues, custom_fields, "update")) as Json;
+      patch.custom_fields = (await checkCustomValues(
+        supabase,
+        projectId,
+        "issue",
+        (cur.custom_fields ?? {}) as CustomValues,
+        custom_fields,
+        "update",
+      )) as Json;
     }
-    const { error } = await supabase.from("issues").update(patch).eq("id", id).eq("project_id", projectId);
+    const { error } = await supabase
+      .from("issues")
+      .update(patch)
+      .eq("id", id)
+      .eq("project_id", projectId);
     if (error) fail("save the issue", error);
     return { ok: true };
   });
@@ -85,7 +137,11 @@ export const deleteIssue = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { projectId, role } = await projectAccess(supabase, userId);
     assertCanWriteRegister(role);
-    const { error } = await supabase.from("issues").delete().eq("id", data.id).eq("project_id", projectId);
+    const { error } = await supabase
+      .from("issues")
+      .delete()
+      .eq("id", data.id)
+      .eq("project_id", projectId);
     if (error) fail("delete the issue", error);
     return { ok: true };
   });
