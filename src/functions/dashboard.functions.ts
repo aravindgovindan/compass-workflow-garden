@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { projectAccess, fail } from "@/lib/project-access.server";
-import { statusCompletion, snapshotSchema, summarizeMilestone } from "@/lib/dashboard/rules";
+import { privateDashboardData, statusCompletion, snapshotSchema, summarizeMilestone } from "@/lib/dashboard/rules";
 export const getDashboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -13,12 +13,10 @@ export const getDashboard = createServerFn({ method: "GET" })
       .map((m) => summarizeMilestone(m, data.today))
       .filter((m) => m.target_date >= data.today && m.status !== "achieved")
       .slice(0, 5);
-    const { overdue, activity, ...publicData } = data;
     return {
-      ...publicData,
+      ...privateDashboardData(data,role),
       milestones,
       progress: statusCompletion(data.statuses),
-      ...(role === "stakeholder" ? {} : { overdue: overdue ?? [], activity: activity ?? [] }),
     };
   });
 export type DashboardData = Awaited<ReturnType<typeof getDashboard>>;

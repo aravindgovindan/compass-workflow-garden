@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { milestoneStatus } from "@/lib/milestones/status";
+import type { ProjectRole } from "@/lib/auth/roles";
+export function privateDashboardData<T extends {overdue?:unknown;activity?:unknown}>(data:T,role:ProjectRole){const {overdue,activity,...safe}=data;return role==='stakeholder'?safe:{...safe,overdue,activity};}
 export function completion(done: number, total: number) {
   return { done, total, percent: total ? Math.round((done / total) * 100) : 0 };
 }
