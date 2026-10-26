@@ -22,3 +22,4 @@
 - Custom field values are validated by `validateCustomValues()` (`src/lib/custom-fields/validate.ts`) on the server before any write; field key and type are immutable after creation, and fields are archived, never deleted.
 - Config colors are stored as palette names (`src/lib/config/colors.ts`) and rendered via `--swatch-*` tokens, so themes stay consistent.
 - New projects get default config from the `projects_seed_config` trigger (`seed_project_config()`), not from app code.
+- Work-item writes use `requireWriter()` / reads `requireTaskReader()` from `src/lib/project-access.server.ts`; task rules (sub-task depth, completed_at, custom-field merge) live in `src/lib/tasks/rules.ts` and are mirrored by the `tasks_integrity()` DB trigger, which is the source of truth.
