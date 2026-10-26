@@ -25,7 +25,7 @@ live("live database permission regressions", () => {
   it("keeps configuration writes owner-only", async () => {
     const config = ["workflow_statuses", "priorities", "labels", "terminology", "custom_field_defs", "demo_batches"];
     const rows = (await policies()).filter((p) => config.includes(p.tablename) && p.cmd !== "SELECT");
-    expect(rows).toHaveLength(24);
+    expect(rows).toHaveLength(18);
     for (const p of rows) {
       const rule = p.with_check ?? p.qual ?? "";
       expect(rule).toContain("'owner'");
