@@ -8,6 +8,7 @@ import { ListsTab } from "@/components/settings/lists-tab";
 import { CustomFieldsTab } from "@/components/settings/custom-fields-tab";
 import { guardSection } from "@/lib/auth/guard";
 import { useProjectConfig } from "@/lib/config/use-config";
+import { DemoTab } from "@/components/settings/demo-tab";
 
 export const Route = createFileRoute("/_authenticated/_app/settings")({
   beforeLoad: guardSection("settings"),
@@ -40,11 +41,13 @@ function Page() {
             <TabsTrigger value="terminology">Terminology</TabsTrigger>
             <TabsTrigger value="lists">Priorities &amp; labels</TabsTrigger>
             <TabsTrigger value="fields">Custom fields</TabsTrigger>
+            <TabsTrigger value="demo">Demo data</TabsTrigger>
           </TabsList>
           <TabsContent value="workflow"><WorkflowTab statuses={data.statuses} /></TabsContent>
           <TabsContent value="terminology"><TerminologyTab terms={data.terms} /></TabsContent>
           <TabsContent value="lists"><ListsTab priorities={data.priorities} labels={data.labels} /></TabsContent>
           <TabsContent value="fields"><CustomFieldsTab fields={data.customFields} members={data.members} /></TabsContent>
+          <TabsContent value="demo"><DemoTab /></TabsContent>
         </Tabs>
       )}
     </>
