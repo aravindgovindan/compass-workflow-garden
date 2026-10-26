@@ -35,7 +35,7 @@ export async function requireTaskReader(supabase: Db, userId: string): Promise<s
 export function fail(what: string, error: { code?: string; message?: string } | null): never {
   console.error(what, error);
   const msg = error?.message ?? "";
-  if (/Sub-tasks cannot|cannot become a sub-task|does not belong/.test(msg)) throw new Error(msg);
+  if (/Sub-tasks cannot|cannot become a sub-task|does not belong|must be on the project|already been converted|not found/.test(msg)) throw new Error(msg);
   throw new Error(`Could not ${what}. Please try again.`);
 }
 

@@ -69,7 +69,7 @@ function Trigger({ label, active }: { label: string; active: number | boolean })
   );
 }
 
-function Multi({ label, value, options, onChange }: { label: string; value: string[]; options: Opt[]; onChange: (v: string[]) => void }) {
+export function Multi({ label, value, options, onChange }: { label: string; value: string[]; options: Opt[]; onChange: (v: string[]) => void }) {
   return (
     <Popover>
       <Trigger label={label} active={value.length} />
