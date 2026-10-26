@@ -23,3 +23,6 @@
 - Config colors are stored as palette names (`src/lib/config/colors.ts`) and rendered via `--swatch-*` tokens, so themes stay consistent.
 - New projects get default config from the `projects_seed_config` trigger (`seed_project_config()`), not from app code.
 - Work-item writes use `requireWriter()` / reads `requireTaskReader()` from `src/lib/project-access.server.ts`; task rules (sub-task depth, completed_at, custom-field merge) live in `src/lib/tasks/rules.ts` and are mirrored by the `tasks_integrity()` DB trigger, which is the source of truth.
+- /tasks view state (filters, sort, grouping) lives in URL search params parsed by `parseTaskSearch()` (`src/lib/tasks/view-params.ts`), so views are shareable links; saved views store that same object.
+- Per-user view settings (List/Board, list columns) live in `user_view_prefs`; saved views in `saved_views`; both are owner-only via RLS and `user_id` filters.
+- The task list loads all matching top-level tasks in 1,000-row pages and virtualizes rendering; board columns render 50 cards at a time. Board drops compute positions with `dropPosition()` (`src/lib/tasks/board.ts`).
