@@ -21,7 +21,7 @@ export const tasksListQuery = (f: TaskFilters) =>
     queryKey: [...LIST_KEY, f],
     queryFn: () => listTasks({ data: {
       topLevelOnly: true, sort: "position", search: f.q || undefined,
-      statusIds: f.status, priorityIds: f.priority, assigneeIds: f.assignee, phaseIds: f.phase, labelIds: f.label,
+      statusIds: f.status, priorityIds: f.priority, assigneeIds: f.assignee, phaseIds: f.phase, milestoneIds: f.milestone, labelIds: f.label,
       dueFrom: f.dueFrom, dueTo: f.dueTo, overdue: f.overdue, cf: f.cf,
     } }),
     placeholderData: (prev) => prev,
@@ -31,7 +31,8 @@ export const taskDetailQuery = (id: string) =>
 export const phasesQuery = queryOptions({ queryKey: ["phases"], queryFn: () => listPhases() });
 
 const errMsg = (e: unknown) => (e instanceof Error ? e.message : "Something went wrong");
-const refreshTasks = (qc: QueryClient) => qc.invalidateQueries({ queryKey: ["tasks"] });
+const refreshTasks = (qc: QueryClient) =>
+  Promise.all([qc.invalidateQueries({ queryKey: ["tasks"] }), qc.invalidateQueries({ queryKey: ["milestones"] })]);
 
 type Snapshot = [readonly unknown[], ListData | undefined][];
 async function patchLists(qc: QueryClient, fn: (d: ListData) => ListData): Promise<Snapshot> {

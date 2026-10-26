@@ -8,7 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
-import { activeFilterCount, NO_ASSIGNEE, type TaskFilters } from "@/lib/tasks/view-params";
+import { useQuery } from "@tanstack/react-query";
+import { milestonesQuery } from "@/lib/milestones/queries";
+import { activeFilterCount, NO_ASSIGNEE, NO_MILESTONE, type TaskFilters } from "@/lib/tasks/view-params";
 import { useTerm } from "@/lib/terminology/use-term";
 import { Dot, PickOne } from "./shared";
 
@@ -18,6 +20,7 @@ export function TaskFilterBar({ filters, config, phases, onChange }: {
   filters: TaskFilters; config: ProjectConfig; phases: Phase[]; onChange: (patch: Partial<TaskFilters>) => void;
 }) {
   const term = useTerm();
+  const milestones = useQuery(milestonesQuery);
   const [q, setQ] = useState(filters.q);
   useEffect(() => setQ(filters.q), [filters.q]);
   useEffect(() => {
@@ -43,10 +46,12 @@ export function TaskFilterBar({ filters, config, phases, onChange }: {
         options={config.labels.map((l) => ({ value: l.id, label: l.name, color: l.color }))} />
       <Multi label={term("phase", "singular")} value={filters.phase} onChange={(phase) => onChange({ phase })}
         options={phases.map((p) => ({ value: p.id, label: p.name }))} />
+      <Multi label={term("milestone", "singular")} value={filters.milestone} onChange={(milestone) => onChange({ milestone })}
+        options={[{ value: NO_MILESTONE, label: `No ${term("milestone", "singular").toLowerCase()}` }, ...(milestones.data ?? []).map((m) => ({ value: m.id, label: m.name }))]} />
       <DueFilter filters={filters} onChange={onChange} />
       <CustomFieldFilter filters={filters} config={config} onChange={onChange} />
       {count > 0 && (
-        <Button variant="ghost" size="sm" onClick={() => onChange({ q: "", status: [], assignee: [], priority: [], label: [], phase: [], dueFrom: undefined, dueTo: undefined, overdue: false, cf: {} })}>
+        <Button variant="ghost" size="sm" onClick={() => onChange({ q: "", status: [], assignee: [], priority: [], label: [], phase: [], milestone: [], dueFrom: undefined, dueTo: undefined, overdue: false, cf: {} })}>
           <X className="size-4" /> Clear ({count})
         </Button>
       )}

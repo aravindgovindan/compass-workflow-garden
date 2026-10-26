@@ -74,6 +74,13 @@ export const listTasks = createServerFn({ method: "POST" })
       if (data.statusIds?.length) q = q.in("status_id", data.statusIds);
       if (data.priorityIds?.length) q = q.in("priority_id", data.priorityIds);
       if (data.phaseIds?.length) q = q.in("phase_id", data.phaseIds);
+      if (data.milestoneIds?.length) {
+        const real = data.milestoneIds.filter((m) => m !== "none");
+        const none = real.length !== data.milestoneIds.length;
+        if (none && real.length) q = q.or(`milestone_id.is.null,milestone_id.in.(${real.join(",")})`);
+        else if (none) q = q.is("milestone_id", null);
+        else q = q.in("milestone_id", real);
+      }
       if (data.assigneeIds?.length) {
         const real = data.assigneeIds.filter((a) => a !== "none");
         const none = real.length !== data.assigneeIds.length;

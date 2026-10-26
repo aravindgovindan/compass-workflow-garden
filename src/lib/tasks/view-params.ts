@@ -13,6 +13,7 @@ export const taskSearchSchema = z.object({
   priority: strList,
   label: strList,
   phase: strList,
+  milestone: strList,
   dueFrom: optStr,
   dueTo: optStr,
   overdue: fallback(z.boolean(), false).default(false),
@@ -26,6 +27,7 @@ export type TaskSearch = z.infer<typeof taskSearchSchema>;
 export const GROUP_BY = ["none", "status", "assignee", "phase", "priority"] as const;
 export type GroupBy = (typeof GROUP_BY)[number];
 export const NO_ASSIGNEE = "none";
+export const NO_MILESTONE = "none";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -42,6 +44,7 @@ export function parseTaskSearch(raw: Record<string, unknown>): TaskSearch {
     task: r.task && UUID.test(r.task) ? r.task : undefined,
     q: r.q.slice(0, 200),
     status: ids(r.status), priority: ids(r.priority), label: ids(r.label), phase: ids(r.phase),
+    milestone: [...new Set(r.milestone.filter((x) => x === NO_MILESTONE || UUID.test(x)))],
     assignee: [...new Set(r.assignee.filter((x) => x === NO_ASSIGNEE || UUID.test(x)))],
     dueFrom: r.dueFrom && DATE.test(r.dueFrom) ? r.dueFrom : undefined,
     dueTo: r.dueTo && DATE.test(r.dueTo) ? r.dueTo : undefined,
@@ -53,15 +56,15 @@ export function parseTaskSearch(raw: Record<string, unknown>): TaskSearch {
 }
 
 /** Filters only (what the server needs and what a saved view stores, besides sort/group). */
-export type TaskFilters = Pick<TaskSearch, "q" | "status" | "assignee" | "priority" | "label" | "phase" | "dueFrom" | "dueTo" | "overdue" | "cf">;
+export type TaskFilters = Pick<TaskSearch, "q" | "status" | "assignee" | "priority" | "label" | "phase" | "milestone" | "dueFrom" | "dueTo" | "overdue" | "cf">;
 
 export function toFilters(s: TaskSearch): TaskFilters {
-  return { q: s.q, status: s.status, assignee: s.assignee, priority: s.priority, label: s.label, phase: s.phase,
+  return { q: s.q, status: s.status, assignee: s.assignee, priority: s.priority, label: s.label, phase: s.phase, milestone: s.milestone,
     dueFrom: s.dueFrom, dueTo: s.dueTo, overdue: s.overdue, cf: s.cf };
 }
 
 export function activeFilterCount(f: TaskFilters): number {
-  return [f.q, f.status.length, f.assignee.length, f.priority.length, f.label.length, f.phase.length, f.dueFrom, f.dueTo, f.overdue]
+  return [f.q, f.status.length, f.assignee.length, f.priority.length, f.label.length, f.phase.length, f.milestone.length, f.dueFrom, f.dueTo, f.overdue]
     .filter(Boolean).length + Object.keys(f.cf).length;
 }
 
