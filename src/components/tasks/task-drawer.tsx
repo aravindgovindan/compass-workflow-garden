@@ -95,6 +95,7 @@ function Field({ label, htmlFor, children }: { label: string; htmlFor?: string; 
 function Fields({ task: t, config, phases }: { task: TaskDetail; config: ProjectConfig; phases: Phase[] }) {
   const term = useTerm();
   const update = useUpdateTask(t.id);
+  const milestones = useQuery(milestonesQuery);
   const save = (patch: Parameters<typeof update.mutate>[0]) => update.mutate(patch);
   const people = config.members.map((m) => ({ value: m.user_id, label: m.full_name }));
   return (
