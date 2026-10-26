@@ -125,7 +125,7 @@ export function AppShell({ me, children }: { me: CurrentUser; children: ReactNod
         </SidebarFooter>
       </Sidebar>
 
-      <SidebarInset className="min-w-0">
+      <SidebarInset className="min-w-0 overflow-x-clip">
         <header className="sticky top-0 z-10 flex h-14 items-center gap-3 border-b bg-background/85 px-4 backdrop-blur">
           <SidebarTrigger aria-label="Toggle navigation" />
           <div className="flex min-w-0 flex-1 items-center gap-2">

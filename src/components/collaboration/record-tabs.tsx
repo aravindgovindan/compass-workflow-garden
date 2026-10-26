@@ -25,7 +25,7 @@ export function RecordTabs({
           History
         </TabsTrigger>
       </TabsList>
-      <TabsContent value="details">{children}</TabsContent>
+      <TabsContent value="details" forceMount className="data-[state=inactive]:hidden">{children}</TabsContent>
       <TabsContent value="comments">
         <CommentsThread entityType={entityType} entityId={entityId} />
       </TabsContent>
