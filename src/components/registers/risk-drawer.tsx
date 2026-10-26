@@ -95,7 +95,7 @@ function Convert({ risk, onConverted }: { risk: RiskDetail; onConverted: (id: st
   const term = useTerm();
   const issue = term("issue", "singular").toLowerCase();
   const [open, setOpen] = useState(false);
-  const [severity, setSeverity] = useState<IssueSeverity>(severityForRating(risk.rating));
+  const [severity, setSeverity] = useState<IssueSeverity>(severityForRating(risk.rating ?? riskScore(risk.probability, risk.impact).rating));
   const convert = useConvertRisk();
   return (
     <div className="border-t pt-4">

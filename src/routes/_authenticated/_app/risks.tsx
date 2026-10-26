@@ -45,7 +45,7 @@ function Page() {
 
   const cols: Col<RiskRow>[] = [
     { key: "title", label: "Title", sort: "title", cell: () => null },
-    { key: "score", label: "Score", sort: "score", cell: (r) => <span className="flex items-center gap-2"><span className="w-5 tabular-nums">{r.score}</span><LevelBadge value={r.rating} /></span> },
+    { key: "score", label: "Score", sort: "score", cell: (r) => <span className="flex items-center gap-2"><span className="w-5 tabular-nums">{r.score}</span><LevelBadge value={r.rating ?? "low"} /></span> },
     { key: "status", label: "Status", sort: "status", cell: (r) => <StatusPill value={r.status} /> },
     { key: "owner", label: "Owner", cell: (r) => nameOf(r.owner_id) },
     { key: "category", label: "Category", cell: (r) => r.category ?? "—" },
