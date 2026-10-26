@@ -15,6 +15,13 @@
       "when": 1793022278408,
       "tag": "0001_config_engine",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793026655952,
+      "tag": "0002_tasks_core",
+      "breakpoints": true
     }
   ]
 }
