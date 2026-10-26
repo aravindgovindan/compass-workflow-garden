@@ -25,7 +25,7 @@ export function PickOne({
   options: { value: string; label: string; color?: string }[]; allowNone?: boolean; noneLabel?: string; disabled?: boolean;
 }) {
   return (
-    <Select value={value ?? NONE} onValueChange={(v) => onChange(v === NONE ? null : v)} disabled={disabled}>
+    <Select value={value ?? NONE} onValueChange={(v) => onChange(v === NONE ? null : v)} disabled={disabled ?? false}>
       <SelectTrigger id={id} aria-label={label} className="h-9"><SelectValue /></SelectTrigger>
       <SelectContent>
         {allowNone && <SelectItem value={NONE}>{noneLabel}</SelectItem>}

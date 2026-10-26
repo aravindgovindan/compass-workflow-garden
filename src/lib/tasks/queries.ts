@@ -1,5 +1,7 @@
 import { queryOptions, useIsMutating, useMutation, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import type { z } from "zod";
+import type { phaseInput, phaseUpdate, taskCreate, taskUpdate } from "@/lib/schemas/tasks";
 import {
   addChecklistItem, createTask, deleteChecklistItem, deleteTask, getTask, listTasks, moveTask,
   reorderChecklist, setTaskLabels, updateChecklistItem, updateTask, type TaskDetail, type TaskListItem,
@@ -7,7 +9,7 @@ import {
 import { createPhase, deletePhase, listPhases, reorderPhases, updatePhase, type Phase } from "@/functions/phases.functions";
 
 type ListData = { rows: TaskListItem[]; total: number };
-type UpdateInput = Parameters<typeof updateTask>[0]["data"];
+type UpdateInput = z.input<typeof taskUpdate>;
 
 export const tasksListQuery = queryOptions({
   queryKey: ["tasks", "list"],
@@ -37,7 +39,7 @@ export function useUpdateTask(id: string) {
       const detail = qc.getQueryData<TaskDetail>(taskDetailQuery(id).queryKey);
       const apply = <T extends { custom_fields: unknown }>(t: T): T => ({
         ...t, ...patch,
-        custom_fields: patch.custom_fields ? { ...(t.custom_fields as object), ...patch.custom_fields } : t.custom_fields,
+        custom_fields: patch["custom_fields"] ? { ...(t.custom_fields as object), ...patch["custom_fields"] } : t.custom_fields,
       });
       if (list) qc.setQueryData<ListData>(tasksListQuery.queryKey, { ...list, rows: list.rows.map((r) => (r.id === id ? apply(r) : r)) });
       if (detail) qc.setQueryData<TaskDetail>(taskDetailQuery(id).queryKey, apply(detail));
@@ -56,7 +58,7 @@ export function useUpdateTask(id: string) {
 export function useCreateTask() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (input: Parameters<typeof createTask>[0]["data"]) => createTask({ data: input }),
+    mutationFn: (input: z.input<typeof taskCreate>) => createTask({ data: input }),
     onMutate: async (input) => {
       await qc.cancelQueries({ queryKey: tasksListQuery.queryKey });
       const list = qc.getQueryData<ListData>(tasksListQuery.queryKey);
@@ -87,7 +89,7 @@ export function useDeleteTask() {
     mutationFn: (input: { id: string; confirmSubtasks?: boolean }) =>
       deleteTask({ data: { id: input.id, confirmSubtasks: input.confirmSubtasks ?? false } }),
     onError: (e) => toast.error(errMsg(e)),
-    onSuccess: (r) => { if (r.deleted) return refreshTasks(qc); },
+    onSuccess: async (r) => { if (r.deleted) await refreshTasks(qc); },
   });
 }
 
@@ -142,8 +144,8 @@ export function usePhaseActions() {
   const done = () => Promise.all([qc.invalidateQueries({ queryKey: phasesQuery.queryKey }), refreshTasks(qc)]);
   const opts = { onError: (e: unknown) => toast.error(errMsg(e)), onSettled: done };
   return {
-    create: useMutation({ mutationFn: (i: Parameters<typeof createPhase>[0]["data"]) => createPhase({ data: i }), ...opts }),
-    update: useMutation({ mutationFn: (i: Parameters<typeof updatePhase>[0]["data"]) => updatePhase({ data: i }), ...opts }),
+    create: useMutation({ mutationFn: (i: z.input<typeof phaseInput>) => createPhase({ data: i }), ...opts }),
+    update: useMutation({ mutationFn: (i: z.input<typeof phaseUpdate>) => updatePhase({ data: i }), ...opts }),
     remove: useMutation({ mutationFn: (id: string) => deletePhase({ data: { id } }), ...opts }),
     reorder: useMutation({
       mutationFn: (ids: string[]) => reorderPhases({ data: { ids } }),
@@ -152,7 +154,7 @@ export function usePhaseActions() {
         if (prev) qc.setQueryData<Phase[]>(phasesQuery.queryKey, ids.map((id) => prev.find((p) => p.id === id)!).filter(Boolean));
         return { prev };
       },
-      onError: (e: unknown, _i: string[], ctx?: { prev?: Phase[] }) => {
+      onError: (e: unknown, _i: string[], ctx?: { prev: Phase[] | undefined }) => {
         if (ctx?.prev) qc.setQueryData(phasesQuery.queryKey, ctx.prev);
         toast.error(errMsg(e));
       },

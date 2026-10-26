@@ -28,7 +28,7 @@ function Page() {
   const { task } = Route.useSearch();
   const navigate = Route.useNavigate();
   const open = (id: string) => navigate({ search: (p) => ({ ...p, task: id }) });
-  const close = () => navigate({ search: (p) => ({ ...p, task: undefined }) });
+  const close = () => navigate({ search: ({ task: _t, ...rest }) => rest });
 
   const config = useProjectConfig();
   const tasks = useQuery(tasksListQuery);
