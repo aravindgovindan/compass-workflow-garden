@@ -23,4 +23,4 @@ function Page() {
   const {data}=useSuspenseQuery(dashboardQuery(me.userId,me.membership?.project.id??'',me.membership?.role??''));
   return <DashboardView data={data} canSeeWork={me.membership?.role==='owner'||me.membership?.role==='member'}/>;
 }
-function DashboardError({error}:ErrorComponentProps){const router=useRouter();return <ErrorState message={error.message} onRetry={()=>router.invalidate()}/>;}
+function DashboardError({error}:ErrorComponentProps){const router=useRouter();return <ErrorState message={error instanceof Error?error.message:'Could not load the dashboard.'} onRetry={()=>router.invalidate()}/>;}
