@@ -15,27 +15,12 @@ export const createProject = createServerFn({ method: "POST" })
     if (profileError || !profile) throw new Error("Could not check your account. Please try again.");
     if (profile.is_demo) throw new Error("Shared test accounts cannot create projects.");
 
-    const { data: project, error } = await supabase
-      .from("projects")
-      .insert({
-        name: data.name,
-        code: data.code,
-        description: data.description ?? null,
-        objectives: data.objectives ?? null,
-        sponsor: data.sponsor ?? null,
-        start_date: data.start_date ?? null,
-        target_end_date: data.target_end_date ?? null,
-        status: data.status,
-        health: data.health,
-        created_by: userId,
-      })
-      .select("id, name, code")
-      .single();
+    const { data: project, error } = await supabase.rpc("create_owned_project", { _input: data });
     if (error || !project) {
       console.error("createProject failed", error);
       throw new Error("Could not create the project. Please try again.");
     }
-    return project;
+    return z.object({ id: z.string().uuid(), name: z.string(), code: z.string() }).parse(project);
   });
 
 export const switchActiveProject = createServerFn({ method: "POST" })
