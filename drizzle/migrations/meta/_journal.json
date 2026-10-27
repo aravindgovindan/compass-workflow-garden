@@ -71,6 +71,13 @@
       "when": 1793042835469,
       "tag": "0009_fix_checklist_integrity",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793081451556,
+      "tag": "0010_uat_shared_access",
+      "breakpoints": true
     }
   ]
 }
