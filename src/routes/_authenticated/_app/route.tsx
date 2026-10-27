@@ -1,10 +1,15 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageError, PagePending } from "@/components/common/route-states";
 
 /** Main app layout. Users without a project are sent to the first-run setup. */
 export const Route = createFileRoute("/_authenticated/_app")({
-  beforeLoad: ({ context }) => {
+  beforeLoad: async ({ context }) => {
+    if (context.me.uat?.revoked) {
+      await supabase.auth.signOut();
+      throw redirect({ to: "/login" });
+    }
     if (!context.me.membership) throw redirect({ to: "/setup" });
   },
   component: AppLayout,
