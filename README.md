@@ -49,6 +49,12 @@ Do not write code yet. Reply with: (a) your understanding in 5 lines, (b) the pr
 This project was built with [Lovable](https://lovable.dev).
 
 ## Phase 1 hardening and demo data
+## Multiple projects
+
+Use the project selector in the sidebar to switch projects or choose **New project**. Each project has its own team roles, configuration and work; new projects automatically select the creator as owner. The active selection persists across sessions. Shared test accounts remain project-specific.
+
+See [multi-project implementation and role checklist](docs/multi-project-support.md) for changes, verification and limitations.
+
 
 Owners can open Settings → Demo data to load a customer onboarding launch dataset: 40 tasks (32 top-level and 8 sub-tasks), 3 phases, 4 milestones, 8 risks, 5 issues, 20 checklist entries and 6 comments with mentions. Dates are relative to the UTC load date. Existing workflow statuses, priorities, terminology and custom fields are used.
 

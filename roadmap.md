@@ -1,9 +1,9 @@
 # Step 10 — Hardening and Demo Data
 # Multi-project support
 
-- [ ] Add secure active-project selection with cleanup and invitation acceptance across projects.
-- [ ] Add sidebar switcher and new-project modal; preserve project-specific roles and UAT isolation.
-- [ ] Run regressions and signed-in create/switch/isolation checks; document SQL and role checklist.
+- [x] Add secure active-project selection with cleanup and invitation acceptance across projects.
+- [x] Add sidebar switcher and new-project modal; preserve project-specific roles and UAT isolation.
+- [x] Run regressions and signed-in create/switch/isolation checks; document SQL and role checklist.
 
 
 - [x] Audit every server function, live RLS policy and route; document and fix gaps.
