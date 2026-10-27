@@ -44,6 +44,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/brand/logo";
 import { HealthBadge } from "@/components/common/health-badge";
+import { UatBanner } from "@/components/uat/uat-banner";
 
 type NavItem = { section: Section; term: TermKey; to: string; icon: LucideIcon };
 
@@ -162,6 +163,7 @@ export function AppShell({ me, children }: { me: CurrentUser; children: ReactNod
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
+        <UatBanner me={me} />
         <main className="mx-auto min-w-0 w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
       </SidebarInset>
     </SidebarProvider>

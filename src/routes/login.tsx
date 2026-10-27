@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Logo } from "@/components/brand/logo";
+import { UatPicker } from "@/components/uat/uat-picker";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -117,6 +118,7 @@ function LoginPage() {
             <Logo />
           </div>
 
+          {mode === "signin" && !sentTo && <UatPicker />}
           {sentTo ? (
             <div className="rounded-xl border bg-card p-6 shadow-card">
               <h1 className="text-xl font-semibold">Check your email</h1>

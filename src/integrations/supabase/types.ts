@@ -519,6 +519,7 @@ export type Database = {
           email: string | null
           full_name: string
           id: string
+          is_demo: boolean
           job_title: string | null
           updated_at: string
         }
@@ -528,6 +529,7 @@ export type Database = {
           email?: string | null
           full_name?: string
           id: string
+          is_demo?: boolean
           job_title?: string | null
           updated_at?: string
         }
@@ -537,6 +539,7 @@ export type Database = {
           email?: string | null
           full_name?: string
           id?: string
+          is_demo?: boolean
           job_title?: string | null
           updated_at?: string
         }
@@ -981,6 +984,117 @@ export type Database = {
           },
         ]
       }
+      uat_accounts: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          project_id: string
+          role: Database["public"]["Enums"]["project_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          project_id: string
+          role: Database["public"]["Enums"]["project_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          project_id?: string
+          role?: Database["public"]["Enums"]["project_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "uat_accounts_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      uat_login_attempts: {
+        Row: {
+          created_at: string
+          id: string
+          ip: string
+          project_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip: string
+          project_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip?: string
+          project_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "uat_login_attempts_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      uat_settings: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          expires_at: string | null
+          feedback_url: string | null
+          id: string
+          project_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          expires_at?: string | null
+          feedback_url?: string | null
+          id?: string
+          project_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          expires_at?: string | null
+          feedback_url?: string | null
+          id?: string
+          project_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "uat_settings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_view_prefs: {
         Row: {
           created_at: string
@@ -1099,6 +1213,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      identity_allowed: {
+        Args: { _project_id: string; _user_id: string }
+        Returns: boolean
+      }
       invite_project_member: {
         Args: {
           _email: string
@@ -1107,7 +1225,12 @@ export type Database = {
         }
         Returns: string
       }
+      is_demo_user: { Args: { _user_id: string }; Returns: boolean }
       is_project_member: {
+        Args: { _project_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_real_project_owner: {
         Args: { _project_id: string; _user_id: string }
         Returns: boolean
       }
@@ -1131,6 +1254,7 @@ export type Database = {
         Args: { _other: string; _user_id: string }
         Returns: boolean
       }
+      uat_active: { Args: { _project_id: string }; Returns: boolean }
     }
     Enums: {
       custom_field_entity: "task" | "risk" | "issue"

@@ -7,13 +7,10 @@
 - [x] Run permission regressions and signed-in demo load/reload/remove checks.
 - [x] Document changed files, decisions and three-role test checklist; disclose member/stakeholder session limits.
 
-# UAT — Shared role access
+# UAT — Shared role access (self-healing)
 
-- [x] Present foundational SQL, policy explanations and secure session approach for approval.
-- [x] Resolve direct account email/password-change protection: user approved server-held sessions and opaque protected cookies.
-- [ ] Integrate cookie-only demo sessions with the protected-route gate. Blocked: managed gate requires browser Cloud Auth, and current platform rules prohibit replacing it.
-- [ ] Add off-by-default controls, account provisioning, rate-limited role picker and request-time kill switch.
-- [ ] Enforce demo restrictions in server checks and database policies; add shared-role banner and audit labels.
-- [ ] Verify role logins, revocation, restricted actions and unchanged real sign-in; provide testing checklist.
-
-UAT is not implemented or enabled. No schema changes or demo accounts have been applied. Complete security SQL still requires review before application. Real sign-in and project data remain unchanged.
+- [x] Off-by-default Settings → Test access for real owners: set up accounts, on/off, expiry, feedback link.
+- [x] Sign-in role picker with one-time sign-in; account email/password reset on every login; 5 attempts/min per IP.
+- [x] Kill switch in every database permission check; banner with role switching, feedback and exit.
+- [x] Shared accounts blocked from team, invitations, demo data, project name/code, profile and new projects.
+- [x] Verified owner setup, tester sign-in, role switch and switch-off sign-out in the browser.
