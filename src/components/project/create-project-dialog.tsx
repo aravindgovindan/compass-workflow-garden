@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export function CreateProjectDialog({ open, onOpenChange, onBusy }: { open: boolean; onOpenChange: (open: boolean) => void; onBusy: (busy: boolean) => void }) {
   const [form, setForm] = useState<ProjectProfileInput>({ name: "", code: "", description: "", status: "planning", health: "green" });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Partial<Record<keyof ProjectProfileInput, string>>>({});
   const create = useServerFn(createProject);
   const mutation = useProjectMutation((input: ProjectProfileInput) => create({ data: input }), onBusy, () => onOpenChange(false));
   const set = (key: keyof ProjectProfileInput, value: string) => { setForm((prev) => ({ ...prev, [key]: value })); setErrors((prev) => ({ ...prev, [key]: "" })); };

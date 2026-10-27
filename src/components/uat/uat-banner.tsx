@@ -20,10 +20,10 @@ export function useUatSignIn() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [busy, setBusy] = useState<ProjectRole | null>(null);
-  async function signIn(role: ProjectRole) {
+  async function signIn(role: ProjectRole, projectId: string) {
     setBusy(role);
     try {
-      const { tokenHash } = await start({ data: { role } });
+      const { tokenHash } = await start({ data: { role, projectId } });
       await qc.cancelQueries();
       qc.clear();
       const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: "magiclink" });
@@ -72,7 +72,7 @@ export function UatBanner({ me }: { me: CurrentUser }) {
       <span className="hidden text-xs opacity-80 md:inline">Others may use this login at the same time.</span>
       <div className="ml-auto flex flex-wrap items-center gap-1">
         {UAT_ROLES.filter((r) => r !== role).map((r) => (
-          <Button key={r} size="sm" variant="ghost" className="h-7" disabled={!!busy} onClick={() => signIn(r)}>
+          <Button key={r} size="sm" variant="ghost" className="h-7" disabled={!!busy} onClick={() => { if (me.membership) void signIn(r, me.membership.project.id); }}>
             {busy === r && <LoaderCircle className="size-3 animate-spin" />}Switch to {label[r]}
           </Button>
         ))}
