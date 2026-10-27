@@ -195,8 +195,8 @@ export function sectionsForRole(role: ProjectRole): GuideSection[] {
     steps: ["You can create, edit and delete tasks, phases, milestones, risks and issues, and participate in task, risk and issue comments.", "You can view Team and project Activity but cannot invite people, change roles or deactivate membership. Ask an owner to update workflow choices, labels, terminology or custom fields.", "You cannot set milestone status overrides, change Settings, load or remove demo data, or manage shared test access. Your saved views and list preferences remain personal."],
   }, troubleshooting];
   return [start, dashboard, stakeholderReview, {
-    ...milestones, steps: [milestones.steps[0], milestones.steps[3], milestones.steps[4], "A status override set by an owner takes precedence over the calculated status. Your milestone view is read-only; individual linked work remains restricted."],
-  }, { ...risks, steps: [risks.steps[0], risks.steps[2], risks.steps[3], risks.steps[4], "Read mitigation plans, ownership and review dates. You cannot add or edit risks, change scores, delete records or convert risks into issues."] }, {
-    ...issues, steps: [issues.steps[0], "Read the severity, status, owner, target date, resolution and custom fields. Comments and the issue's history provide context; you cannot create, edit, delete or comment."],
+    ...milestones, steps: [...milestones.steps.slice(0, 1), ...milestones.steps.slice(3, 5), "A status override set by an owner takes precedence over the calculated status. Your milestone view is read-only; individual linked work remains restricted."],
+  }, { ...risks, steps: [...risks.steps.slice(0, 1), ...risks.steps.slice(2, 5), "Read mitigation plans, ownership and review dates. You cannot add or edit risks, change scores, delete records or convert risks into issues."] }, {
+    ...issues, steps: [...issues.steps.slice(0, 1), "Read the severity, status, owner, target date, resolution and custom fields. Comments and the issue's history provide context; you cannot create, edit, delete or comment."],
   }, exports, troubleshooting];
 }
