@@ -13,9 +13,10 @@ export function useProjectMutation<I, O>(call: (input: I) => Promise<O>, onBusy:
     onMutate: async () => { onBusy(true); await qc.cancelQueries(); },
     onSuccess: async () => {
       qc.clear();
-      await navigate({ to: "/dashboard", search: {}, replace: true });
       await router.invalidate({ sync: true });
+      onBusy(false);
       onDone?.();
+      await navigate({ to: "/dashboard", search: {}, replace: true });
     },
     onError: (error) => toast.error(friendlyError(error)),
     onSettled: () => onBusy(false),
