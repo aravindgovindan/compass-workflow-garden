@@ -18,7 +18,7 @@ live("live database permission regressions", () => {
     expect(rows.length).toBeGreaterThan(40);
     for (const p of rows) {
       const rule = p.cmd === "DELETE" ? p.qual : p.with_check ?? p.qual;
-      expect(rule, `${p.tablename} ${p.cmd}`).toMatch(/has_project_role|project_role_of/);
+      expect(rule, `${p.tablename} ${p.cmd}`).toMatch(/has_project_role|project_role_of|is_real_project_owner/);
       expect(rule, `${p.tablename} ${p.cmd}`).not.toContain("stakeholder");
     }
   });
