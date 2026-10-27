@@ -14,11 +14,11 @@ const label: Record<ProjectRole, string> = { owner: "Owner", member: "Member", s
 /** Role picker shown on sign-in only while a real owner has shared test access switched on. */
 export function UatPicker() {
   const fetchAvail = useServerFn(getUatAvailability);
-  const avail = useQuery({ queryKey: ["uat-availability"], queryFn: () => fetchAvail() });
+  const avail = useQuery({ queryKey: ["uat-availability", "projects-v2"], queryFn: () => fetchAvail() });
   const { signIn, busy } = useUatSignIn();
   const [projectId, setProjectId] = useState<string | null>(null);
   if (!avail.data?.available) return null;
-  const projects = avail.data.projects;
+  const projects = Array.isArray(avail.data.projects) ? avail.data.projects : [];
   const project = projects.find((p) => p.id === projectId) ?? projects[0];
   if (!project) return null;
   const roles = order.filter((r) => project.roles.includes(r));
