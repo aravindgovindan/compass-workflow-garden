@@ -11,7 +11,7 @@
 
 # Architecture rules
 
-- Every app table has `project_id` (except `profiles`, `projects`), so multi-project support can be added later.
+- App data has `project_id` except profiles/projects; active selection is profile-backed, membership-validated by DB trigger and shared by session/server access.
 - Roles live only in `project_members`; RLS uses security-definer helpers (`is_project_member`, `has_project_role`) to avoid recursion and privilege escalation.
 - Role → section access rules live in `src/lib/auth/roles.ts` (unit-tested); routes use `guardSection()` in `beforeLoad`, and the server/RLS re-checks every read and write.
 - Activity log rows are written by the `log_activity()` DB trigger on every audited table, so no write path can skip logging; attach it to each new table.
@@ -40,4 +40,5 @@
 - CSV server functions share ordinary server-side filtered-list helpers with list functions, paginate without a UI row cap, and escape every cell including headers against spreadsheet formulas.
 - Demo loading/removal use owner-checked SECURITY INVOKER RPCs, project-row locks and a project-scoped ID manifest; preserve non-demo records and audit history to prevent accidental real-data loss.
 - Shared route states provide router/root error and not-found boundaries and loader pending screens; mutation errors must preserve input and use friendly messages.
-- Shared UAT accounts use normal browser sessions issued by `startUatSession()` after the server resets their email/password (self-healing); the kill switch lives in `identity_allowed()` inside every membership helper, and demo restrictions are DB triggers, so no client path bypasses them.
+- UAT uses self-healing browser sessions; role switching is pinned to the test project. `identity_allowed()` enforces revocation and DB triggers enforce demo restrictions.
+- Project transitions hide old content, cancel reads, clear Query caches and refresh route context; content remounts by project ID to discard local edits.

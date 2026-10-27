@@ -1,6 +1,6 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -45,6 +45,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/brand/logo";
 import { HealthBadge } from "@/components/common/health-badge";
 import { UatBanner } from "@/components/uat/uat-banner";
+import { ProjectSwitcher } from "@/components/layout/project-switcher";
+import { PagePending } from "@/components/common/route-states";
 
 type NavItem = { section: Section; term: TermKey; to: string; icon: LucideIcon };
 
@@ -68,6 +70,7 @@ function initials(name: string) {
 }
 
 export function AppShell({ me, children }: { me: CurrentUser; children: ReactNode }) {
+  const [switching, setSwitching] = useState(false);
   const role = me.membership?.role ?? null;
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
@@ -116,13 +119,14 @@ export function AppShell({ me, children }: { me: CurrentUser; children: ReactNod
           <Link to="/dashboard" aria-label="Compass Workflow home" className="group-data-[collapsible=icon]:hidden">
             <Logo inverted />
           </Link>
+          <div className="mt-4 group-data-[collapsible=icon]:hidden"><ProjectSwitcher me={me} busy={switching} onBusy={setSwitching} /></div>
         </SidebarHeader>
         <SidebarContent>
           {renderGroup("Work", work)}
           {renderGroup("Project", people)}
         </SidebarContent>
         <SidebarFooter className="p-3 text-xs text-sidebar-foreground/50 group-data-[collapsible=icon]:hidden">
-          Phase 1
+          Compass Workflow
         </SidebarFooter>
       </Sidebar>
 
@@ -164,7 +168,7 @@ export function AppShell({ me, children }: { me: CurrentUser; children: ReactNod
           </DropdownMenu>
         </header>
         <UatBanner me={me} />
-        <main className="mx-auto min-w-0 w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+        <main key={me.membership?.project.id} className="mx-auto min-w-0 w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 lg:px-8">{switching ? <PagePending /> : children}</main>
       </SidebarInset>
     </SidebarProvider>
   );

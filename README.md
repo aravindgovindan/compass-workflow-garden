@@ -3,7 +3,7 @@
 Build a web app called Compass Workflow, step by step.
 
 PRODUCT
-A lightweight, configurable project management tool for running ONE project at a time. Unlike Jira, it is opinionated and simple: the owner configures workflow, terminology and custom fields in minutes, then manages tasks, milestones, risks and issues in one place. Target: small teams of 2 to 30 people.
+A lightweight, configurable project management tool supporting multiple projects per account. Unlike Jira, it is opinionated and simple: the owner configures workflow, terminology and custom fields in minutes, then manages tasks, milestones, risks and issues in one place. Target: small teams of 2 to 30 people per project.
 
 USER ROLES
 - Owner: full access, configures the project.
@@ -21,10 +21,10 @@ PHASE 1 FEATURES (build only these)
 8. Risk register and issue log.
 9. Dashboard (health, percent complete, tasks by status, overdue items, upcoming milestones, open risks and issues) and CSV export.
 
-NOT IN PHASE 1 (do not build, but do not block them): task dependencies, Gantt, calendar, notifications, templates, automation, time tracking, AI features, integrations, multi-project UI.
+NOT IN PHASE 1 (do not build, but do not block them): task dependencies, Gantt, calendar, notifications, templates, automation, time tracking, AI features, integrations. Multi-project support was added after Phase 1.
 
 ARCHITECTURE RULES
-- Every table has a project_id so multi-project support can be added later, even though the UI shows a single project.
+- Project data is scoped by project_id; active membership and project-specific roles are validated on every server request.
 - Everything configurable lives in the database and is never hard-coded in the UI. All labels come from the terminology map.
 - Custom fields: store typed field definitions, and store values in a JSONB column on the record.
 - Enforce authorization on the server for every read and write, based on role.
@@ -49,6 +49,12 @@ Do not write code yet. Reply with: (a) your understanding in 5 lines, (b) the pr
 This project was built with [Lovable](https://lovable.dev).
 
 ## Phase 1 hardening and demo data
+## Multiple projects
+
+Use the project selector in the sidebar to switch projects or choose **New project**. Each project has its own team roles, configuration and work; new projects automatically select the creator as owner. The active selection persists across sessions. Shared test accounts remain project-specific.
+
+See [multi-project implementation and role checklist](docs/multi-project-support.md) for changes, verification and limitations.
+
 
 Owners can open Settings → Demo data to load a customer onboarding launch dataset: 40 tasks (32 top-level and 8 sub-tasks), 3 phases, 4 milestones, 8 risks, 5 issues, 20 checklist entries and 6 comments with mentions. Dates are relative to the UTC load date. Existing workflow statuses, priorities, terminology and custom fields are used.
 

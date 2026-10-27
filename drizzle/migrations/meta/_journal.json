@@ -85,6 +85,27 @@
       "when": 1793081499668,
       "tag": "0011_uat_block_demo_project_create",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1793085204818,
+      "tag": "0012_multi_project_selection",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793085531483,
+      "tag": "0013_atomic_owned_project_creation",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1793086123883,
+      "tag": "0014_uat_guard_table_safe",
+      "breakpoints": true
     }
   ]
 }

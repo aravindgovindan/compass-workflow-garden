@@ -4,7 +4,7 @@ import { assertDemoOwner } from "@/lib/demo/data";
 import { canConfigure } from "./roles";
 
 function client(role: "owner" | "member" | "stakeholder" | null): Db {
-  const query = { select: () => query, eq: () => query, order: () => query, limit: () => query, maybeSingle: async () => ({ data: role ? { project_id: "project", role } : null }) };
+  const query = { select: () => query, eq: () => query, order: () => query, maybeSingle: async () => ({ data: { active_project_id: "project" } }), then: (resolve: (value: unknown) => unknown) => Promise.resolve({ data: role ? [{ project_id: "project", role }] : [] }).then(resolve) };
   return { from: () => query } as unknown as Db;
 }
 

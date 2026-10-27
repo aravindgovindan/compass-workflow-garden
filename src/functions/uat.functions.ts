@@ -5,25 +5,30 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { projectAccess } from "@/lib/project-access.server";
 import { canLogin, isUatActive, UAT_ROLES, uatEmail, uatRoleLabel, uatSettingsInput } from "@/lib/uat/rules";
 
-const roleInput = z.object({ role: z.enum(UAT_ROLES) });
+const roleInput = z.object({ role: z.enum(UAT_ROLES), projectId: z.string().uuid() });
 
 async function admin() {
   return (await import("@/integrations/supabase/client.server")).supabaseAdmin;
 }
 
-async function activeProject() {
+async function activeProjects() {
   const db = await admin();
   const { data } = await db.from("uat_settings").select("project_id, enabled, expires_at, feedback_url").eq("enabled", true);
-  return (data ?? []).find((s) => isUatActive(s)) ?? null;
+  return (data ?? []).filter((s) => isUatActive(s));
 }
 
 /** Public: whether the shared role picker should show on the sign-in page. */
 export const getUatAvailability = createServerFn({ method: "GET" }).handler(async () => {
-  const s = await activeProject();
-  if (!s) return { available: false as const };
+  const settings = await activeProjects();
+  if (!settings.length) return { available: false as const, projects: [] };
   const db = await admin();
-  const { data } = await db.from("uat_accounts").select("role").eq("project_id", s.project_id);
-  return { available: (data?.length ?? 0) > 0, roles: (data ?? []).map((r) => r.role) };
+  const ids = settings.map((s) => s.project_id);
+  const [accounts, projects] = await Promise.all([
+    db.from("uat_accounts").select("project_id, role").in("project_id", ids),
+    db.from("projects").select("id, name, code").in("id", ids).order("name"),
+  ]);
+  const available = (projects.data ?? []).map((p) => ({ ...p, roles: (accounts.data ?? []).filter((a) => a.project_id === p.id).map((a) => a.role) })).filter((p) => p.roles.length > 0);
+  return { available: available.length > 0, projects: available };
 });
 
 /** Public: issue a one-time sign-in for a shared role, resetting its email/password first. */
@@ -35,7 +40,7 @@ export const startUatSession = createServerFn({ method: "POST" })
     const since = new Date(Date.now() - 60_000).toISOString();
     const { count } = await db.from("uat_login_attempts").select("id", { count: "exact", head: true }).eq("ip", ip).gte("created_at", since);
     if (!canLogin(count ?? 0)) throw new Error("Too many attempts. Please wait a minute and try again.");
-    const s = await activeProject();
+    const s = (await activeProjects()).find((project) => project.project_id === data.projectId);
     await db.from("uat_login_attempts").insert({ ip, project_id: s?.project_id ?? null });
     if (!s) throw new Error("Shared test access is not available right now.");
     const { data: acct } = await db.from("uat_accounts").select("user_id").eq("project_id", s.project_id).eq("role", data.role).maybeSingle();

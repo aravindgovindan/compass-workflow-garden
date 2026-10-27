@@ -8,12 +8,12 @@ import { Logo } from "@/components/brand/logo";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Compass Workflow — run one project, simply" },
+      { title: "Compass Workflow — manage your projects, simply" },
       {
         name: "description",
         content: "Set up your workflow, tasks, milestones, risks and issues in minutes. Built for teams of 2 to 30.",
       },
-      { property: "og:title", content: "Compass Workflow — run one project, simply" },
+      { property: "og:title", content: "Compass Workflow — manage your projects, simply" },
       {
         property: "og:description",
         content: "Set up your workflow, tasks, milestones, risks and issues in minutes. Built for teams of 2 to 30.",
@@ -46,7 +46,7 @@ function Landing() {
         </Button>
       </header>
       <main className="mx-auto max-w-6xl px-6 pb-24 pt-16 sm:pt-28">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-primary">One project. One place.</p>
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-primary">Your projects. One place.</p>
         <h1 className="mt-4 max-w-3xl text-4xl font-semibold leading-[1.05] sm:text-6xl">
           Project management without the Jira-sized learning curve.
         </h1>

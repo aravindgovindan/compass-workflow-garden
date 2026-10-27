@@ -19,6 +19,7 @@ import {
 import { checkStatusDeletion, nextDefaultStatus } from "@/lib/config/status-rules";
 import { toTermMap, type TermMap } from "@/lib/terminology/defaults";
 import type { CustomFieldType } from "@/lib/custom-fields/types";
+import { projectAccess } from "@/lib/project-access.server";
 
 // Every change below is written to activity_log by the log_activity() trigger on each table.
 
@@ -30,16 +31,7 @@ function clean<T extends object>(o: T): { [K in keyof T]?: Exclude<T[K], undefin
 }
 
 async function currentProjectId(supabase: Db, userId: string): Promise<string> {
-  const { data } = await supabase
-    .from("project_members")
-    .select("project_id")
-    .eq("user_id", userId)
-    .eq("active", true)
-    .order("created_at")
-    .limit(1)
-    .maybeSingle();
-  if (!data) throw new Error("You are not on a project yet.");
-  return data.project_id;
+  return (await projectAccess(supabase, userId)).projectId;
 }
 
 /** Server-side owner check; RLS re-checks every write as well. */
