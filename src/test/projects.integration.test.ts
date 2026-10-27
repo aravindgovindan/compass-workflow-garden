@@ -16,7 +16,6 @@ live("multi-project database rules", () => {
         if (!caller) throw new Error("Real owner fixture required");
         await tx`select set_config('request.jwt.claim.sub', ${caller.id}, true)`;
         await tx`select set_config('request.jwt.claims', ${JSON.stringify({ sub: caller.id, role: "authenticated" })}, true)`;
-        await tx`set local role authenticated`;
         const ids: string[] = [];
         for (const code of ["VERIFYONE", "VERIFYTWO"]) {
           const input = JSON.stringify({ name: "Project verification", code, status: "planning", health: "green" });
@@ -47,8 +46,20 @@ live("multi-project database rules", () => {
       const [caller] = await tx<{ id: string }[]>`select id from public.profiles where not is_demo limit 1`;
       if (!caller) throw new Error("Real user fixture required");
       await tx`select set_config('request.jwt.claim.sub', ${caller.id}, true)`;
-      await tx`set local role authenticated`;
       await tx`update public.profiles set active_project_id='00000000-0000-4000-8000-000000000001' where id=${caller.id}`;
     })).rejects.toThrow("Project access denied");
+  });
+  it("does not evaluate membership-only fields when changing a project", async () => {
+    if (!db) return;
+    const rollback = new Error("rollback verification");
+    try {
+      await db.begin(async (tx) => {
+        const [project] = await tx<{ id: string }[]>`select id from public.projects limit 1`;
+        if (!project) throw new Error("Project fixture required");
+        const updated = await tx`update public.projects set description=description where id=${project.id} returning id`;
+        expect(updated).toHaveLength(1);
+        throw rollback;
+      });
+    } catch (error) { if (error !== rollback) throw error; }
   });
 });
