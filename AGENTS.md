@@ -40,3 +40,4 @@
 - CSV server functions share ordinary server-side filtered-list helpers with list functions, paginate without a UI row cap, and escape every cell including headers against spreadsheet formulas.
 - Demo loading/removal use owner-checked SECURITY INVOKER RPCs, project-row locks and a project-scoped ID manifest; preserve non-demo records and audit history to prevent accidental real-data loss.
 - Shared route states provide router/root error and not-found boundaries and loader pending screens; mutation errors must preserve input and use friendly messages.
+- UAT demo authentication must use server-held Cloud Auth tokens with opaque HttpOnly cookies, never browser Auth sessions, because a shared browser Auth token permits direct account credential changes; do not enable until the protected-route gate supports this separate authentication owner.
