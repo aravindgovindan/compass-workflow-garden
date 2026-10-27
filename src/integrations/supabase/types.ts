@@ -514,6 +514,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          active_project_id: string | null
           avatar_url: string | null
           created_at: string
           email: string | null
@@ -524,6 +525,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          active_project_id?: string | null
           avatar_url?: string | null
           created_at?: string
           email?: string | null
@@ -534,6 +536,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          active_project_id?: string | null
           avatar_url?: string | null
           created_at?: string
           email?: string | null
@@ -543,7 +546,15 @@ export type Database = {
           job_title?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_active_project_id_fkey"
+            columns: ["active_project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       project_members: {
         Row: {
