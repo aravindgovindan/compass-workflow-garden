@@ -2,19 +2,23 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import type { ProjectRole } from "@/lib/auth/roles";
 import { assertCanWriteTasks } from "@/lib/tasks/rules";
+import { selectMembership } from "@/lib/projects/selection";
 
 export type Db = SupabaseClient<Database>;
 
 /** The caller's current project and role (server-side). */
 export async function projectAccess(supabase: Db, userId: string): Promise<{ projectId: string; role: ProjectRole }> {
-  const { data } = await supabase
+  const { data: profile, error: profileError } = await supabase.from("profiles").select("active_project_id").eq("id", userId).maybeSingle();
+  if (profileError) throw new Error("Could not load your project. Please try again.");
+  const { data: memberships, error } = await supabase
     .from("project_members")
     .select("project_id, role")
     .eq("user_id", userId)
     .eq("active", true)
-    .order("created_at")
-    .limit(1)
-    .maybeSingle();
+    .order("created_at", { ascending: false })
+    .order("id");
+  if (error) throw new Error("Could not load your project. Please try again.");
+  const data = selectMembership(memberships ?? [], profile?.active_project_id);
   if (!data) throw new Error("You are not on a project yet.");
   return { projectId: data.project_id, role: data.role };
 }
