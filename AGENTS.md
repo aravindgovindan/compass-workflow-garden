@@ -42,3 +42,4 @@
 - Shared route states provide router/root error and not-found boundaries and loader pending screens; mutation errors must preserve input and use friendly messages.
 - UAT uses self-healing browser sessions; role switching is pinned to the test project. `identity_allowed()` enforces revocation and DB triggers enforce demo restrictions.
 - Project transitions hide old content, cancel reads, clear Query caches and refresh route context; content remounts by project ID to discard local edits.
+- The role-based handbook at /guide is public static documentation with URL-selected reading roles, not account role switching; it contains no project data and remains accessible before sign-in.

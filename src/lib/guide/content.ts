@@ -113,9 +113,9 @@ const exports: GuideSection = {
   id: "exports", title: "Export the current view",
   intro: "CSV exports are useful for review or reporting outside the app. They contain all records matching the supported current filters, not just the rows visible on screen.",
   steps: [
-    "Open the relevant list, apply the filters you need and choose Export. Wait for the CSV download, then open it in your spreadsheet application.",
+    "Open the relevant list, apply the filters you need and choose Export. Wait for the CSV download; on touch devices, choose Download CSV when it appears. Then open the file in your spreadsheet application. Milestones export the complete visible register because that page has no list filters.",
     "Owners and members can export tasks, milestones, risks and issues. Stakeholders can export milestones, risks and issues only; individual task data is not available to them.",
-    "Headers use the project's configured terminology. Active custom fields appear as columns using their display names. Cells are escaped, and values beginning with spreadsheet formula characters are neutralized.",
+    "Task exports contain matching top-level tasks, not sub-tasks as separate rows. Headers use the project's configured terminology. Active custom fields appear as columns using their display names. Cells are escaped, and values beginning with spreadsheet formula characters are neutralized.",
     "Treat exported files as project information: share them only with the right people. Project access restrictions do not control a file after you download it.",
   ],
 };
@@ -138,7 +138,7 @@ const ownerSetup: GuideSection = {
   steps: [
     "For your first project, complete the setup wizard: Basics, Goals, Timeline and Review. Enter a name and project code, description, objectives, sponsor, dates, status and health, then review and create. You become its owner.",
     "To create another project, open the sidebar project switcher and choose New project. Enter its name, code, optional description, status and health, then create it. The new project becomes your active project.",
-    "Open Settings to update the project profile. Use a short uppercase project code and ensure the target end date is not before the start date.",
+    "During project creation, use a short uppercase project code and ensure the target end date is not before the start date. Settings currently provides workflow configuration, not a project-profile editing form.",
     "In workflow settings, add or edit statuses and arrange their order. Choose the appropriate category, especially Done for completed work. Status names are configurable; the category drives completion calculations.",
     "In Terminology, enter singular and plural labels for your team's entities. In Priorities and Labels, define the choices and colors you want people to use consistently.",
     "In Custom fields, choose the entity, name, field type and any required setting or choices. Field keys and types cannot change after creation. Archive unused fields instead of deleting them; existing values are preserved.",
@@ -165,7 +165,7 @@ const demo: GuideSection = {
   steps: [
     "As a real owner, open Settings → Demo data and load the sample project content. It includes about 40 tasks across three phases, four milestones, eight risks, five issues, plus sub-tasks, checklists and discussion examples.",
     "Loading again does not duplicate the sample set. Samples use the project's configured choices and dates relative to the loading day.",
-    "Use Remove demo data when you are finished. Only tracked demo records are removed; real records, settings, memberships and audit history remain. This is not an action to erase all project data.",
+    "Use Remove demo data when you are finished, and review the confirmation. Only tracked demo records and edits to them are removed; real records, settings, memberships and audit history remain. Remove new comments on demo records first if removal is blocked. This is not an action to erase all project data.",
     "In Settings → Test access, set up the shared role accounts, then enable access. It is off by default. Add an optional expiry and feedback address, and share the sign-in page with testers.",
     "Testers choose a test project when more than one is offered, then choose Owner, Member or Stakeholder. A persistent banner identifies the shared role and offers role switching, feedback when configured and exit.",
     "Only real owners may manage test access, set up or recreate its accounts, and load or remove demo data. The shared Owner may test ordinary configuration but cannot manage people or invitations, create projects, or change protected project or account identity details.",
