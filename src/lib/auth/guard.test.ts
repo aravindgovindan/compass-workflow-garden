@@ -7,7 +7,7 @@ import type { ProjectRole } from "./roles";
 const me = (role: ProjectRole): CurrentUser => ({
   userId: "u",
   profile: null,
-  membership: { role, project: { id: "p", name: "P", code: "PP", health: "green" } },
+  uat: null, membership: { role, project: { id: "p", name: "P", code: "PP", health: "green" } },
 });
 
 function run(role: ProjectRole) {
