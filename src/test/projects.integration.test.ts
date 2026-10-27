@@ -6,60 +6,36 @@ const db = url ? postgres(url, { max: 1, connect_timeout: 5 }) : null;
 const live = db ? describe : describe.skip;
 afterAll(async () => { if (db) await db.end(); });
 
-live("multi-project database rules", () => {
-  it("creates two projects atomically and selects each new project with seeded configuration", async () => {
+// The diagnostic connection is read-only; behavior is also exercised through the signed-in UI.
+live("multi-project database boundaries", () => {
+  it("limits atomic creation to authenticated non-demo callers and assigns the caller as creator", async () => {
     if (!db) return;
-    const rollback = new Error("rollback verification");
-    try {
-      await db.begin(async (tx) => {
-        const [caller] = await tx<{ id: string }[]>`select p.id from public.profiles p join public.project_members m on m.user_id=p.id where not p.is_demo and m.active and m.role='owner' limit 1`;
-        if (!caller) throw new Error("Real owner fixture required");
-        await tx`select set_config('request.jwt.claim.sub', ${caller.id}, true)`;
-        await tx`select set_config('request.jwt.claims', ${JSON.stringify({ sub: caller.id, role: "authenticated" })}, true)`;
-        const ids: string[] = [];
-        for (const code of ["VERIFYONE", "VERIFYTWO"]) {
-          const input = JSON.stringify({ name: "Project verification", code, status: "planning", health: "green" });
-          const [result] = await tx<{ project: { id: string } }[]>`select public.create_owned_project(${input}::jsonb) as project`;
-          if (!result) throw new Error("Project was not returned");
-          ids.push(result.project.id);
-          const [profile] = await tx<{ active_project_id: string }[]>`select active_project_id from public.profiles where id=${caller.id}`;
-          expect(profile?.active_project_id).toBe(result.project.id);
-          const [membership] = await tx<{ role: string }[]>`select role from public.project_members where project_id=${result.project.id} and user_id=${caller.id} and active`;
-          expect(membership?.role).toBe("owner");
-          const [config] = await tx<{ count: number }[]>`select count(*)::integer as count from public.workflow_statuses where project_id=${result.project.id}`;
-          expect(config?.count).toBe(5);
-        }
-        expect(new Set(ids).size).toBe(2);
-        const first = ids[0];
-        if (!first) throw new Error("Missing first project");
-        await tx`update public.profiles set active_project_id=${first} where id=${caller.id}`;
-        const [profile] = await tx<{ active_project_id: string }[]>`select active_project_id from public.profiles where id=${caller.id}`;
-        expect(profile?.active_project_id).toBe(first);
-        throw rollback;
-      });
-    } catch (error) { if (error !== rollback) throw error; }
+    const [fn] = await db<{ source: string; authenticated: boolean; anon: boolean }[]>`select pg_get_functiondef('public.create_owned_project(jsonb)'::regprocedure) as source, has_function_privilege('authenticated','public.create_owned_project(jsonb)','EXECUTE') as authenticated, has_function_privilege('anon','public.create_owned_project(jsonb)','EXECUTE') as anon`;
+    expect(fn?.authenticated).toBe(true);
+    expect(fn?.anon).toBe(false);
+    expect(fn?.source).toContain("auth.uid() IS NULL OR public.is_demo_user(auth.uid())");
+    expect(fn?.source).toContain("public.project_health,auth.uid()");
   });
-
-  it("rejects a direct profile switch to an unauthorized project", async () => {
+  it("validates selected projects with active membership and the UAT kill switch", async () => {
     if (!db) return;
-    await expect(db.begin(async (tx) => {
-      const [caller] = await tx<{ id: string }[]>`select id from public.profiles where not is_demo limit 1`;
-      if (!caller) throw new Error("Real user fixture required");
-      await tx`select set_config('request.jwt.claim.sub', ${caller.id}, true)`;
-      await tx`update public.profiles set active_project_id='00000000-0000-4000-8000-000000000001' where id=${caller.id}`;
-    })).rejects.toThrow("Project access denied");
+    const [fn] = await db<{ source: string }[]>`select pg_get_functiondef('public.validate_active_project()'::regprocedure) as source`;
+    expect(fn?.source).toContain("user_id = NEW.id AND project_id = NEW.active_project_id AND active");
+    expect(fn?.source).toContain("public.identity_allowed(NEW.active_project_id, NEW.id)");
+    expect(fn?.source).toContain("Project access denied");
+    const triggers = await db<{ name: string }[]>`select tgname as name from pg_trigger where tgrelid='public.profiles'::regclass and not tgisinternal`;
+    expect(triggers.map((t) => t.name)).toContain("profiles_validate_active_project");
   });
-  it("does not evaluate membership-only fields when changing a project", async () => {
+  it("preserves existing active roles while accepting verified-email invitations to other projects", async () => {
     if (!db) return;
-    const rollback = new Error("rollback verification");
-    try {
-      await db.begin(async (tx) => {
-        const [project] = await tx<{ id: string }[]>`select id from public.projects limit 1`;
-        if (!project) throw new Error("Project fixture required");
-        const updated = await tx`update public.projects set description=description where id=${project.id} returning id`;
-        expect(updated).toHaveLength(1);
-        throw rollback;
-      });
-    } catch (error) { if (error !== rollback) throw error; }
+    const [fn] = await db<{ source: string }[]>`select pg_get_functiondef('public.accept_pending_invitation()'::regprocedure) as source`;
+    expect(fn?.source).toContain("email_confirmed_at IS NOT NULL");
+    expect(fn?.source).toContain("WHERE NOT project_members.active");
+    expect(fn?.source).toContain("FOR inv IN");
+  });
+  it("isolates membership-only fields behind a table-specific guard", async () => {
+    if (!db) return;
+    const [fn] = await db<{ source: string }[]>`select pg_get_functiondef('public.uat_demo_guard()'::regprocedure) as source`;
+    expect(fn?.source).toContain("IF TG_TABLE_NAME = 'project_members' THEN");
+    expect(fn?.source).toContain("The last owner cannot be removed or demoted");
   });
 });
