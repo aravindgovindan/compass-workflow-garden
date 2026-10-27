@@ -1,3 +1,9 @@
+# User guide
+
+- [x] Add detailed, accurate guides for owners, members and stakeholders.
+- [x] Link the public guide from the home screen and signed-in navigation.
+- [x] Verify role selection, reading navigation and narrow-screen layout.
+
 # Step 10 — Hardening and Demo Data
 # Multi-project support
 

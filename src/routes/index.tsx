@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { CheckCircle2 } from "lucide-react";
+import { BookOpen, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/brand/logo";
@@ -41,9 +41,12 @@ function Landing() {
     <div className="min-h-screen bg-auth">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
         <Logo />
+        <div className="flex flex-wrap justify-end gap-2">
+        <Button asChild variant="ghost"><Link to="/guide" search={{ role: "owner" }}><BookOpen aria-hidden />User guide</Link></Button>
         <Button asChild variant="outline">
           <Link to={signedIn ? "/dashboard" : "/login"}>{signedIn ? "Open dashboard" : "Sign in"}</Link>
         </Button>
+        </div>
       </header>
       <main className="mx-auto max-w-6xl px-6 pb-24 pt-16 sm:pt-28">
         <p className="font-mono text-xs uppercase tracking-[0.2em] text-primary">Your projects. One place.</p>
@@ -61,10 +64,11 @@ function Landing() {
             </li>
           ))}
         </ul>
-        <div className="mt-10 flex gap-3">
+        <div className="mt-10 flex flex-wrap gap-3">
           <Button asChild size="lg">
             <Link to={signedIn ? "/dashboard" : "/login"}>{signedIn ? "Open dashboard" : "Get started"}</Link>
           </Button>
+          <Button asChild size="lg" variant="outline"><Link to="/guide" search={{ role: "owner" }}><BookOpen aria-hidden />Read the user guide</Link></Button>
         </div>
       </main>
     </div>

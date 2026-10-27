@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import {
   Activity,
+  BookOpen,
   AlertTriangle,
   Flag,
   LayoutDashboard,
@@ -124,6 +125,11 @@ export function AppShell({ me, children }: { me: CurrentUser; children: ReactNod
         <SidebarContent>
           {renderGroup("Work", work)}
           {renderGroup("Project", people)}
+          <SidebarGroup><SidebarGroupContent><SidebarMenu><SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === "/guide"} tooltip="User guide">
+              <Link to="/guide" search={{ role: role ?? "owner" }}><BookOpen aria-hidden /><span>User guide</span></Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem></SidebarMenu></SidebarGroupContent></SidebarGroup>
         </SidebarContent>
         <SidebarFooter className="p-3 text-xs text-sidebar-foreground/50 group-data-[collapsible=icon]:hidden">
           Compass Workflow
