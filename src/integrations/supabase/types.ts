@@ -1215,6 +1215,7 @@ export type Database = {
         }
         Returns: string
       }
+      create_owned_project: { Args: { _input: Json }; Returns: Json }
       dashboard_snapshot: { Args: { _project_id: string }; Returns: Json }
       has_project_role: {
         Args: {
