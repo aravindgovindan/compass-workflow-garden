@@ -1,6 +1,6 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   Activity,
   BookOpen,
@@ -33,6 +33,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
@@ -115,6 +116,7 @@ export function AppShell({ me, children }: { me: CurrentUser; children: ReactNod
 
   return (
     <SidebarProvider>
+      <CloseMobileOnNavigate pathname={pathname} />
       <Sidebar collapsible="icon">
         <SidebarHeader className="px-3 py-4">
           <Link to="/dashboard" aria-label="Compass Workflow home" className="group-data-[collapsible=icon]:hidden">
@@ -178,4 +180,14 @@ export function AppShell({ me, children }: { me: CurrentUser; children: ReactNod
       </SidebarInset>
     </SidebarProvider>
   );
+}
+
+/** Closes the mobile sidebar drawer whenever the route changes so it never blocks the new page. */
+function CloseMobileOnNavigate({ pathname }: { pathname: string }) {
+  const { setOpenMobile } = useSidebar();
+  useEffect(() => {
+    setOpenMobile(false);
+    if (document.body.style.pointerEvents === "none") document.body.style.pointerEvents = "";
+  }, [pathname, setOpenMobile]);
+  return null;
 }

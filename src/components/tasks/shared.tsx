@@ -25,7 +25,15 @@ export function PickOne({
   options: { value: string; label: string; color?: string }[]; allowNone?: boolean; noneLabel?: string; disabled?: boolean;
 }) {
   return (
-    <Select value={value ?? NONE} onValueChange={(v) => onChange(v === NONE ? null : v)} disabled={disabled ?? false}>
+    <Select
+      value={value ?? NONE}
+      onValueChange={(v) => onChange(v === NONE ? null : v)}
+      onOpenChange={(open) => {
+        // Radix can leave body pointer-events locked if the menu unmounts mid-close.
+        if (!open) setTimeout(() => { if (document.body.style.pointerEvents === "none") document.body.style.pointerEvents = ""; }, 0);
+      }}
+      disabled={disabled ?? false}
+    >
       <SelectTrigger id={id} aria-label={label} className="h-9"><SelectValue /></SelectTrigger>
       <SelectContent>
         {allowNone && <SelectItem value={NONE}>{noneLabel}</SelectItem>}
