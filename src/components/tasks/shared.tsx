@@ -17,6 +17,16 @@ export function isOverdue(due: string | null, completedAt: string | null): boole
   return due < new Date().toISOString().slice(0, 10);
 }
 
+function unlockBodySoon() {
+  for (const ms of [0, 150, 400]) {
+    setTimeout(() => {
+      if (document.body.style.pointerEvents === "none" && !document.querySelector("[role=listbox]")) {
+        document.body.style.pointerEvents = "";
+      }
+    }, ms);
+  }
+}
+
 /** Select with optional "none" choice; value null means none. */
 export function PickOne({
   id, label, value, onChange, options, allowNone, noneLabel = "None", disabled,
@@ -27,11 +37,13 @@ export function PickOne({
   return (
     <Select
       value={value ?? NONE}
-      onValueChange={(v) => onChange(v === NONE ? null : v)}
-      onOpenChange={(open) => {
-        // Radix can leave body pointer-events locked if the menu unmounts mid-close.
-        if (!open) setTimeout(() => { if (document.body.style.pointerEvents === "none") document.body.style.pointerEvents = ""; }, 0);
+      onValueChange={(v) => {
+        // Let the menu finish closing before the page re-renders (e.g. URL updates),
+        // otherwise Radix can leave the body pointer lock in place.
+        requestAnimationFrame(() => onChange(v === NONE ? null : v));
+        unlockBodySoon();
       }}
+      onOpenChange={(open) => { if (!open) unlockBodySoon(); }}
       disabled={disabled ?? false}
     >
       <SelectTrigger id={id} aria-label={label} className="h-9"><SelectValue /></SelectTrigger>
