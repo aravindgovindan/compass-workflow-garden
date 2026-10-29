@@ -146,7 +146,7 @@ function Page() {
                 <PickOne
                   id="group-by"
                   label="Group by"
-                  value={search.group}
+                  value={search.group ?? "phase"}
                   onChange={(g) =>
                     navigate({
                       search: (p) => ({ ...p, group: (g ?? "none") as GroupBy }),
